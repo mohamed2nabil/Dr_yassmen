@@ -1,27 +1,29 @@
-import { useState } from "react";
-import { ArrowRight } from "lucide-react";
+"use client";
+
+import { useState } from 'react'
+import { ArrowRight } from 'lucide-react'
 
 interface Project {
-  title: string;
-  subtitle: string;
-  description: string;
-  image: string;
-  tag?: string;
-  before?: string;
-  after?: string;
+  title: string
+  subtitle: string
+  description: string
+  image: string
+  tag?: string
+  before?: string
+  after?: string
 }
 
 interface ChapterSectionProps {
-  id: string;
-  chapterNum: string;
-  arabicTitle: string;
-  englishTitle: string;
-  tagline: string;
-  description: string;
-  color: string;
-  bg: string;
-  projects: Project[];
-  hasBefore?: boolean;
+  id: string
+  chapterNum: string
+  arabicTitle: string
+  englishTitle: string
+  tagline: string
+  description: string
+  color: string
+  bg: string
+  projects: Project[]
+  hasBefore?: boolean
 }
 
 export function ChapterSection({
@@ -36,14 +38,14 @@ export function ChapterSection({
   projects,
   hasBefore,
 }: ChapterSectionProps) {
-  const [activeProject, setActiveProject] = useState(0);
-  const [showAfter, setShowAfter] = useState(false);
+  const [activeProject, setActiveProject] = useState(0)
+  const [showAfter, setShowAfter] = useState(false)
 
   return (
     <section
       id={id}
-      className="py-24 lg:py-32"
-      style={{ background: "var(--background)" }}
+      className="py-12 md:py-16 lg:py-20"
+      style={{ background: 'var(--background)' }}
     >
       {/* Chapter header band */}
       <div
@@ -58,30 +60,36 @@ export function ChapterSection({
           <div>
             <div
               className="flex items-center gap-3 mb-3"
-              style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", color }}
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.68rem',
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                color,
+              }}
             >
               <span className="h-px w-6" style={{ background: color }} />
               Chapter {chapterNum}
             </div>
             <h2
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2rem, 4vw, 3.5rem)",
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(2rem, 4vw, 3.5rem)',
                 fontWeight: 400,
                 lineHeight: 1.1,
-                color: "var(--foreground)",
-                letterSpacing: "-0.02em",
+                color: 'var(--foreground)',
+                letterSpacing: '-0.02em',
               }}
             >
               {englishTitle}
             </h2>
             <div
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.2rem",
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.2rem',
                 color,
-                fontStyle: "italic",
-                marginTop: "4px",
+                fontStyle: 'italic',
+                marginTop: '4px',
               }}
             >
               {arabicTitle}
@@ -89,11 +97,11 @@ export function ChapterSection({
           </div>
           <p
             style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.95rem",
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.95rem',
               lineHeight: 1.75,
-              color: "var(--muted-foreground)",
-              maxWidth: "400px",
+              color: 'var(--muted-foreground)',
+              maxWidth: '400px',
             }}
           >
             {tagline}
@@ -107,10 +115,10 @@ export function ChapterSection({
           <div className="lg:col-span-5">
             <p
               style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "1rem",
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
                 lineHeight: 1.85,
-                color: "var(--muted-foreground)",
+                color: 'var(--muted-foreground)',
               }}
             >
               {description}
@@ -125,18 +133,24 @@ export function ChapterSection({
             {projects.map((p, i) => (
               <button
                 key={i}
-                onClick={() => { setActiveProject(i); setShowAfter(false); }}
+                onClick={() => {
+                  setActiveProject(i)
+                  setShowAfter(false)
+                }}
                 className="text-left p-5 transition-all duration-200 group"
                 style={{
-                  background: activeProject === i ? bg : "transparent",
-                  borderLeft: `2px solid ${activeProject === i ? color : "transparent"}`,
+                  background: activeProject === i ? bg : 'transparent',
+                  borderLeft: `2px solid ${activeProject === i ? color : 'transparent'}`,
                 }}
               >
                 <div
                   style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.05rem",
-                    color: activeProject === i ? "var(--foreground)" : "var(--muted-foreground)",
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '1.05rem',
+                    color:
+                      activeProject === i
+                        ? 'var(--foreground)'
+                        : 'var(--muted-foreground)',
                     fontWeight: 500,
                   }}
                 >
@@ -144,12 +158,12 @@ export function ChapterSection({
                 </div>
                 <div
                   style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.68rem",
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.68rem',
                     color,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    marginTop: "2px",
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    marginTop: '2px',
                     opacity: activeProject === i ? 1 : 0.6,
                   }}
                 >
@@ -163,37 +177,50 @@ export function ChapterSection({
           <div className="lg:col-span-8">
             <div
               className="rounded-sm overflow-hidden"
-              style={{ border: "1px solid var(--border)" }}
+              style={{ border: '1px solid var(--border)' }}
             >
               {/* Before/after toggle for interior design */}
-              {hasBefore && projects[activeProject].before && projects[activeProject].after && (
-                <div className="flex" style={{ background: bg }}>
-                  {["Before", "After"].map((label) => (
-                    <button
-                      key={label}
-                      onClick={() => setShowAfter(label === "After")}
-                      className="flex-1 py-2.5 transition-all"
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.68rem",
-                        letterSpacing: "0.12em",
-                        textTransform: "uppercase",
-                        background: (label === "After") === showAfter ? color : "transparent",
-                        color: (label === "After") === showAfter ? "#F9F6F1" : color,
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {hasBefore &&
+                projects[activeProject].before &&
+                projects[activeProject].after && (
+                  <div className="flex" style={{ background: bg }}>
+                    {['Before', 'After'].map((label) => (
+                      <button
+                        key={label}
+                        onClick={() => setShowAfter(label === 'After')}
+                        className="flex-1 py-2.5 transition-all"
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.68rem',
+                          letterSpacing: '0.12em',
+                          textTransform: 'uppercase',
+                          background:
+                            (label === 'After') === showAfter
+                              ? color
+                              : 'transparent',
+                          color:
+                            (label === 'After') === showAfter
+                              ? '#F9F6F1'
+                              : color,
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
               {/* Image */}
-              <div className="relative" style={{ height: "320px", background: bg }}>
+              <div
+                className="relative"
+                style={{ height: '320px', background: bg }}
+              >
                 <img
                   src={
                     hasBefore && projects[activeProject].before
-                      ? (showAfter ? projects[activeProject].after : projects[activeProject].before)
+                      ? showAfter
+                        ? projects[activeProject].after
+                        : projects[activeProject].before
                       : projects[activeProject].image
                   }
                   alt={projects[activeProject].title}
@@ -203,26 +230,27 @@ export function ChapterSection({
                   className="absolute top-4 right-4 px-2.5 py-1"
                   style={{
                     background: color,
-                    color: "#F9F6F1",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.65rem",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    borderRadius: "1px",
+                    color: '#F9F6F1',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    borderRadius: '1px',
                   }}
                 >
-                  {projects[activeProject].tag || projects[activeProject].subtitle}
+                  {projects[activeProject].tag ||
+                    projects[activeProject].subtitle}
                 </div>
               </div>
 
               {/* Content */}
-              <div className="p-6" style={{ background: "var(--card)" }}>
+              <div className="p-6" style={{ background: 'var(--card)' }}>
                 <h3
                   style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.4rem",
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '1.4rem',
                     fontWeight: 400,
-                    color: "var(--foreground)",
+                    color: 'var(--foreground)',
                   }}
                 >
                   {projects[activeProject].title}
@@ -230,10 +258,10 @@ export function ChapterSection({
                 <p
                   className="mt-3"
                   style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "0.9rem",
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.9rem',
                     lineHeight: 1.75,
-                    color: "var(--muted-foreground)",
+                    color: 'var(--muted-foreground)',
                   }}
                 >
                   {projects[activeProject].description}
@@ -241,12 +269,12 @@ export function ChapterSection({
                 <button
                   className="mt-5 flex items-center gap-2 transition-opacity hover:opacity-60"
                   style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: "0.78rem",
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.78rem',
                     fontWeight: 500,
                     color,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
                   }}
                 >
                   View Full Project
@@ -258,5 +286,5 @@ export function ChapterSection({
         </div>
       </div>
     </section>
-  );
+  )
 }
