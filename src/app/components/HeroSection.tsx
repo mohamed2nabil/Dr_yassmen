@@ -187,7 +187,7 @@ export function HeroSection() {
           </div>
 
           {/* Right — editorial image collage */}
-          <div className="relative hidden lg:grid grid-cols-2 grid-rows-2 gap-3 h-[560px]">
+          <div className="relative grid grid-cols-2 grid-rows-2 gap-3 h-[320px] sm:h-[450px] lg:h-[560px] mt-10 lg:mt-0">
             {/* Large top-left */}
             <div
               className="row-span-2 rounded-sm overflow-hidden"
@@ -222,48 +222,7 @@ export function HeroSection() {
               />
             </div>
 
-            {/* Floating chapter indicator */}
-            <div
-              className="absolute -bottom-4 -left-4 p-4 shadow-lg"
-              style={{
-                background: 'var(--card)',
-                border: '1px solid var(--border)',
-                borderRadius: '2px',
-                minWidth: '160px',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.68rem',
-                  color: 'var(--muted-foreground)',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Experience
-              </div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '2.2rem',
-                  fontWeight: 600,
-                  color: 'var(--foreground)',
-                  lineHeight: 1.1,
-                }}
-              >
-                15+
-              </div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.78rem',
-                  color: 'var(--muted-foreground)',
-                }}
-              >
-                Years of Practice
-              </div>
-            </div>
+
           </div>
         </div>
       </div>

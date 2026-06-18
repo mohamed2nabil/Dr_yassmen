@@ -12,8 +12,10 @@ import {
   Image,
   Settings,
   Eye,
+  X,
 } from 'lucide-react';
 import { cn } from '@/components/ui/utils';
+import { Button } from '@/components/ui/button';
 
 const navigation = [
   {
@@ -48,12 +50,15 @@ const navigation = [
   },
 ];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-sidebar">
-      <div className="flex h-16 items-center border-b px-6">
+    <aside className={cn(
+      "fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-col border-r bg-sidebar transition-transform duration-300 lg:static lg:translate-x-0",
+      isOpen ? "translate-x-0" : "-translate-x-full"
+    )}>
+      <div className="flex h-16 items-center justify-between border-b px-6">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <span className="font-semibold">YA</span>
@@ -63,6 +68,9 @@ export function DashboardSidebar() {
             <span className="text-xs text-muted-foreground">Admin Dashboard</span>
           </div>
         </div>
+        <Button variant="ghost" size="icon" className="lg:hidden" onClick={onClose}>
+          <X className="h-5 w-5" />
+        </Button>
       </div>
 
       <nav className="flex-1 space-y-1 p-4">

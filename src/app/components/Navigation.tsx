@@ -56,12 +56,12 @@ export function Navigation({ activeSection }: NavigationProps) {
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{ background: "var(--background)" }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between h-14 lg:h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 w-full">
           {/* Brand / Logo – left */}
           <button
             onClick={() => scrollTo("hero")}
             style={{ fontFamily: "var(--font-display)" }}
-            className="text-foreground tracking-wide"
+            className="text-foreground tracking-wide text-left"
           >
             <span style={{ fontSize: "1.1rem", fontWeight: 600 }}>
               Dr. Yassmin Allam
@@ -81,7 +81,7 @@ export function Navigation({ activeSection }: NavigationProps) {
           </button>
 
           {/* Desktop navigation – shown on lg+ */}
-          <div className="lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8">
             {chapters.map((ch) => (
               <button
                 key={ch.id}
@@ -127,74 +127,83 @@ export function Navigation({ activeSection }: NavigationProps) {
 
           {/* Mobile hamburger – right aligned */}
           <button
-            className="lg:hidden ml-auto text-foreground"
+            className="lg:hidden ml-auto text-foreground z-50 p-2"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
           >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile Drawer (Sidebar) */}
+      {/* Mobile Drawer Overlay */}
       {menuOpen && (
         <div
-          className="fixed inset-y-0 w-64 right-0 h-full bg-[#var(--background)] transform -translate-x-full transition-transform duration-300"
-          style={{ zIndex: 51 }}
-        >
-          <div className="flex flex-col p-8 gap-6">
-            {chapters.map((ch) => (
-              <button
-                key={ch.id}
-                onClick={() => scrollTo(ch.id)}
-                className="flex items-center gap-4 text-left"
-              >
-                <span
-                  className="w-1 h-10 rounded-full"
-                  style={{ background: ch.color }}
-                />
-                <div>
-                  <div
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.3rem",
-                      color: "var(--foreground)",
-                    }}
-                  >
-                    {ch.label}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: "0.78rem",
-                      color: "var(--muted-foreground)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                    }}
-                  >
-                    {ch.en}
-                  </div>
-                </div>
-              </button>
-            ))}
-            <button
-              onClick={() => scrollTo("contact")}
-              className="mt-4 px-6 py-3 text-center"
-              style={{
-                background: "var(--foreground)",
-                color: "var(--primary-foreground)",
-                fontFamily: "var(--font-body)",
-                fontSize: "0.85rem",
-                fontWeight: 500,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                borderRadius: "2px",
-              }}
-            >
-              Book a Session
-            </button>
-          </div>
-        </div>
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
       )}
+
+      {/* Mobile Drawer (Sidebar) */}
+      <div
+        className={`fixed inset-y-0 right-0 w-64 h-full shadow-2xl transition-transform duration-300 transform lg:hidden z-40 ${
+          menuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{ background: "var(--background)", borderLeft: "1px solid var(--border)" }}
+      >
+        <div className="flex flex-col p-8 pt-20 gap-6">
+          {chapters.map((ch) => (
+            <button
+              key={ch.id}
+              onClick={() => scrollTo(ch.id)}
+              className="flex items-center gap-4 text-left w-full hover:opacity-80 transition-opacity"
+            >
+              <span
+                className="w-1.5 h-10 rounded-full shrink-0"
+                style={{ background: ch.color }}
+              />
+              <div>
+                <div
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.2rem",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  {ch.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.75rem",
+                    color: "var(--muted-foreground)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  {ch.en}
+                </div>
+              </div>
+            </button>
+          ))}
+          <button
+            onClick={() => scrollTo("contact")}
+            className="mt-4 px-6 py-3 text-center transition-all duration-200 hover:opacity-90"
+            style={{
+              background: "var(--foreground)",
+              color: "var(--primary-foreground)",
+              fontFamily: "var(--font-body)",
+              fontSize: "0.85rem",
+              fontWeight: 500,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              borderRadius: "2px",
+            }}
+          >
+            Book a Session
+          </button>
+        </div>
+      </div>
     </>
   );
 }

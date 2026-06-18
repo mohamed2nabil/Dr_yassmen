@@ -1,9 +1,3 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/media/page": "app/admin/media/page.js",
-  "/admin/courses/page": "app/admin/courses/page.js",
-  "/admin/inbox/page": "app/admin/inbox/page.js",
-  "/admin/projects/page": "app/admin/projects/page.js"
+  "/page": "app/page.js"
 }
