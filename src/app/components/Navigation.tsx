@@ -108,6 +108,20 @@ export function Navigation({ activeSection }: NavigationProps) {
               </button>
             ))}
             <button
+              onClick={() => window.location.href = '/courses'}
+              className="relative transition-all duration-200 group"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "0.8rem",
+                fontWeight: 500,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: "var(--muted-foreground)",
+              }}
+            >
+              Courses
+            </button>
+            <button
               onClick={() => scrollTo("contact")}
               className="ml-4 px-5 py-2 transition-all duration-200 hover:opacity-80 text-sm"
               style={{
@@ -186,6 +200,40 @@ export function Navigation({ activeSection }: NavigationProps) {
               </div>
             </button>
           ))}
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              window.location.href = '/courses';
+            }}
+            className="flex items-center gap-4 text-left w-full hover:opacity-80 transition-opacity"
+          >
+            <span
+              className="w-1.5 h-10 rounded-full shrink-0"
+              style={{ background: "var(--accent)" }}
+            />
+            <div>
+              <div
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1.2rem",
+                  color: "var(--foreground)",
+                }}
+              >
+                Courses
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.75rem",
+                  color: "var(--muted-foreground)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Learning & Development
+              </div>
+            </div>
+          </button>
           <button
             onClick={() => scrollTo("contact")}
             className="mt-4 px-6 py-3 text-center transition-all duration-200 hover:opacity-90"

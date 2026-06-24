@@ -23,18 +23,7 @@ export function PhilosophySection() {
                 className="h-px w-6"
                 style={{ background: 'var(--accent)' }}
               />
-              My Philosophy
-            </div>
-            <div
-              className="mt-3"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.95rem',
-                color: 'rgba(249,246,241,0.4)',
-                fontStyle: 'italic',
-              }}
-            >
-              فلسفتي في الفن
+              ABOUT ME
             </div>
 
             {/* Vertical quote line */}
@@ -58,9 +47,7 @@ export function PhilosophySection() {
                 fontStyle: 'italic',
               }}
             >
-              "Art is not a discipline — it is a language. I use it to design
-              spaces that breathe, teach minds that wonder, and heal hearts that
-              ache."
+              Welcome to my creative world.
             </blockquote>
 
             <p
@@ -72,13 +59,7 @@ export function PhilosophySection() {
                 color: 'rgba(249,246,241,0.65)',
               }}
             >
-              My practice was born from a single conviction: that creativity, in
-              all its forms, is a force for human transformation. Whether I am
-              mixing pigments on a canvas, selecting textures for an interior,
-              guiding a student's first brushstroke, or sitting quietly beside a
-              client as they process grief through color — I am doing the same
-              work. I am making space for the human experience to be seen, held,
-              and honored.
+              I am Yasmen Allam, a multidisciplinary creative professional with expertise in Visual Arts, Interior Design, Art Education, and Art Therapy. My work is driven by a passion for transforming ideas into meaningful artistic experiences that inspire creativity, personal growth, and emotional well-being.
             </p>
 
             <p
@@ -90,11 +71,31 @@ export function PhilosophySection() {
                 color: 'rgba(249,246,241,0.65)',
               }}
             >
-              The four disciplines I practice are not separate chapters — they
-              are the same story told in different voices. Interior design is
-              visual art applied to the spaces we inhabit. Education is
-              creativity multiplied across generations. Therapy is the moment
-              when art stops being beautiful and becomes necessary.
+              With a background in Applied Arts and Education, I have developed a diverse portfolio that combines artistic expression, innovative design, and therapeutic practices. Throughout my journey, I have worked with children, adolescents, and adults, creating engaging learning environments, artistic projects, and art-based interventions that foster creativity and self-expression.
+            </p>
+
+            <p
+              className="mt-5"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.85,
+                color: 'rgba(249,246,241,0.65)',
+              }}
+            >
+              My philosophy is rooted in the belief that art has the power to connect, heal, educate, and inspire. Whether through a painting, a designed space, an educational program, or an art therapy session, my goal is to create experiences that leave a lasting impact.
+            </p>
+
+            <p
+              className="mt-5"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.85,
+                color: 'rgba(249,246,241,0.65)',
+              }}
+            >
+              This portfolio showcases selected works, projects, exhibitions, educational initiatives, and creative achievements that reflect my artistic vision and professional journey.
             </p>
 
             {/* Signature */}
@@ -111,7 +112,7 @@ export function PhilosophySection() {
                   fontStyle: 'italic',
                 }}
               >
-                Dr. Yassmin Allam
+                Yasmen Allam
               </span>
             </div>
           </div>

@@ -80,14 +80,14 @@ export function HeroSection() {
                 letterSpacing: '-0.02em',
               }}
             >
-              Dr. Yassmin
+              Yasmen
               <br />
               <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>
                 Allam
               </em>
             </h1>
 
-            {/* Arabic name */}
+            {/* Professions */}
             <div
               className="mt-3 mb-8"
               style={{
@@ -98,7 +98,7 @@ export function HeroSection() {
                 letterSpacing: '0.02em',
               }}
             >
-              د. ياسمين علام
+              Visual Artist | Interior Designer | Art Educator | Art Therapist
             </div>
 
             {/* Tagline */}
@@ -108,13 +108,99 @@ export function HeroSection() {
                 fontSize: '1.05rem',
                 lineHeight: 1.75,
                 color: 'var(--muted-foreground)',
-                maxWidth: '480px',
+                maxWidth: '600px',
               }}
             >
-              A multi-disciplinary creative who weaves visual art, interior
-              design, art education, and therapeutic practice into a singular,
-              coherent vision.
+              Welcome to my portfolio.
             </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.75,
+                color: 'var(--muted-foreground)',
+                maxWidth: '600px',
+                marginTop: '1rem',
+              }}
+            >
+              I am a passionate Visual Artist, Interior Designer, Art Educator, and Art Therapist dedicated to inspiring creativity, fostering self-expression, and creating meaningful artistic experiences.
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.75,
+                color: 'var(--muted-foreground)',
+                maxWidth: '600px',
+                marginTop: '1rem',
+              }}
+            >
+              With a multidisciplinary background in Fine Arts, Interior Design, Education, and Art Therapy, I combine artistic vision with educational expertise to design engaging learning environments, innovative creative projects, and therapeutic art experiences that support personal growth and emotional well-being.
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.75,
+                color: 'var(--muted-foreground)',
+                maxWidth: '600px',
+                marginTop: '1rem',
+              }}
+            >
+              Throughout my professional journey, I have worked on a diverse range of projects, including visual arts, interior design, educational programs, art workshops, community initiatives, and art therapy activities for children, adolescents, and adults. My work reflects a commitment to creativity, innovation, cultural appreciation, and lifelong learning.
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.75,
+                color: 'var(--muted-foreground)',
+                maxWidth: '600px',
+                marginTop: '1rem',
+              }}
+            >
+              This portfolio presents a selection of my professional achievements, creative projects, artistic works, educational experiences, and therapeutic practices. Each project represents my belief that art has the power to connect people, inspire change, and transform ideas into meaningful experiences.
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1rem',
+                lineHeight: 1.75,
+                color: 'var(--muted-foreground)',
+                maxWidth: '600px',
+                marginTop: '1rem',
+              }}
+            >
+              Thank you for taking the time to explore my work. I hope this portfolio reflects my passion for creativity, education, and the transformative power of art.
+            </p>
+
+            {/* Quote */}
+            <blockquote
+              className="mt-8"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
+                fontWeight: 400,
+                lineHeight: 1.6,
+                color: 'var(--foreground)',
+                fontStyle: 'italic',
+                borderLeft: '3px solid var(--accent)',
+                paddingLeft: '1.5rem',
+              }}
+            >
+              "Creativity is intelligence having fun."
+              <div
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.95rem',
+                  marginTop: '0.5rem',
+                  fontStyle: 'normal',
+                  color: 'var(--muted-foreground)',
+                }}
+              >
+                — Albert Einstein
+              </div>
+            </blockquote>
 
             {/* Chapter pills */}
             <div className="flex flex-wrap gap-2 mt-8">
