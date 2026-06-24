@@ -1,6 +1,6 @@
 "use client";
 
-import { MediaPage } from '@/pages/media';
+import { MediaPage } from '@/views/media';
 
 export default function Page() {
   return <MediaPage />;

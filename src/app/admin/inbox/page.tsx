@@ -1,6 +1,6 @@
 "use client";
 
-import { InboxPage } from '@/pages/inbox';
+import { InboxPage } from '@/views/inbox';
 
 export default function Page() {
   return <InboxPage />;
