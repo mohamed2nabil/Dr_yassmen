@@ -61,23 +61,17 @@ export function Navigation({ activeSection }: NavigationProps) {
           <button
             onClick={() => scrollTo("hero")}
             style={{ fontFamily: "var(--font-display)" }}
-            className="text-foreground tracking-wide text-left"
+            className="flex items-center gap-4 text-foreground tracking-wide text-left"
+            aria-label="Go to top"
           >
-            <span style={{ fontSize: "1.1rem", fontWeight: 600 }}>
-              Dr. Yassmin Allam
-            </span>
-            <span
-              className="hidden sm:inline text-muted-foreground mx-2"
-              style={{ fontSize: "0.85rem" }}
-            >
-              ·
-            </span>
-            <span
-              className="hidden sm:inline text-muted-foreground"
-              style={{ fontSize: "0.8rem", fontFamily: "var(--font-body)", fontWeight: 400 }}
-            >
-              د. ياسمين علام
-            </span>
+            <img
+              src="https://l4lhmmpwsk.ufs.sh/f/e0aMZuFnt6LgNziam2WaOqMwDCTf85oZm2x7yitjns6YEUek"
+              width={260}
+              height={80}
+              alt="Dr. Yassmin Allam"
+              className="w-auto h-12 md:h-14 object-contain"
+            />
+            <span className="sr-only">Go to top</span>
           </button>
 
           {/* Desktop navigation – shown on lg+ */}
