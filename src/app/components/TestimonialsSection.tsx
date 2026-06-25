@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
+import { getTestimonials } from '@/app/actions/testimonialActions';
 
-const testimonials = [
+const fallbackTestimonials = [
   {
     name: 'Laila Hassan',
     role: 'Interior Design Client',
@@ -48,10 +49,66 @@ const testimonials = [
     chapterColor: 'var(--chapter-therapy)',
     chapterLabel: 'Art Therapy',
   },
-]
+];
 
 export function TestimonialsSection() {
-  const [active, setActive] = useState(0)
+  const [active, setActive] = useState(0);
+  const [items, setItems] = useState(fallbackTestimonials);
+
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        const dbTestimonials = await getTestimonials();
+        // filter visible
+        const visible = dbTestimonials.filter((t) => t.isVisible);
+        if (visible.length > 0) {
+          const colors = {
+            'Interior Design': 'var(--chapter-interior)',
+            'Art Education': 'var(--chapter-education)',
+            'Visual Art': 'var(--chapter-art)',
+            'Art Therapy': 'var(--chapter-therapy)',
+          };
+          setItems(
+            visible.map((t) => {
+              // Try to resolve a logical color/label based on role or content keywords
+              let chapterLabel = 'Visual Art';
+              let chapterColor = 'var(--chapter-art)';
+
+              const roleText = (t.role || '').toLowerCase();
+              if (roleText.includes('interior') || roleText.includes('design')) {
+                chapterLabel = 'Interior Design';
+                chapterColor = 'var(--chapter-interior)';
+              } else if (roleText.includes('education') || roleText.includes('student') || roleText.includes('teach')) {
+                chapterLabel = 'Art Education';
+                chapterColor = 'var(--chapter-education)';
+              } else if (roleText.includes('therapy') || roleText.includes('wellness')) {
+                chapterLabel = 'Art Therapy';
+                chapterColor = 'var(--chapter-therapy)';
+              }
+
+              return {
+                name: t.clientName,
+                role: t.role,
+                location: 'Cairo',
+                quote: t.content,
+                chapterColor,
+                chapterLabel,
+              };
+            })
+          );
+        }
+      } catch (error) {
+        console.error('Failed to load testimonials:', error);
+      }
+    };
+    loadTestimonials();
+  }, []);
+
+  if (items.length === 0) return null;
+
+  // Safeguard active index out of bounds
+  const currentActive = active >= items.length ? 0 : active;
+  const currentItem = items[currentActive];
 
   return (
     <section
@@ -109,15 +166,15 @@ export function TestimonialsSection() {
 
             {/* Navigator */}
             <div className="mt-10 flex flex-col gap-2">
-              {testimonials.map((t, i) => (
+              {items.map((t, i) => (
                 <button
                   key={i}
                   onClick={() => setActive(i)}
                   className="text-left flex items-center gap-3 px-3 py-2 transition-all duration-200"
                   style={{
-                    borderLeft: `2px solid ${active === i ? t.chapterColor : 'transparent'}`,
+                    borderLeft: `2px solid ${currentActive === i ? t.chapterColor : 'transparent'}`,
                     background:
-                      active === i ? 'var(--secondary)' : 'transparent',
+                      currentActive === i ? 'var(--secondary)' : 'transparent',
                   }}
                 >
                   <div>
@@ -126,7 +183,7 @@ export function TestimonialsSection() {
                         fontFamily: 'var(--font-body)',
                         fontSize: '0.82rem',
                         color:
-                          active === i
+                          currentActive === i
                             ? 'var(--foreground)'
                             : 'var(--muted-foreground)',
                         fontWeight: 500,
@@ -158,7 +215,7 @@ export function TestimonialsSection() {
               style={{
                 background: 'var(--card)',
                 border: '1px solid var(--border)',
-                borderTop: `3px solid ${testimonials[active].chapterColor}`,
+                borderTop: `3px solid ${currentItem.chapterColor}`,
                 borderRadius: '2px',
               }}
             >
@@ -168,12 +225,12 @@ export function TestimonialsSection() {
                   fontSize: '0.65rem',
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  color: testimonials[active].chapterColor,
+                  color: currentItem.chapterColor,
                   marginBottom: '2rem',
                 }}
               >
-                {testimonials[active].chapterLabel} ·{' '}
-                {testimonials[active].location}
+                {currentItem.chapterLabel} ·{' '}
+                {currentItem.location}
               </div>
               <blockquote
                 style={{
@@ -185,13 +242,13 @@ export function TestimonialsSection() {
                   fontStyle: 'italic',
                 }}
               >
-                "{testimonials[active].quote}"
+                "{currentItem.quote}"
               </blockquote>
               <div className="mt-8 flex items-center gap-4">
                 <div
                   className="w-10 h-10 flex items-center justify-center"
                   style={{
-                    background: testimonials[active].chapterColor,
+                    background: currentItem.chapterColor,
                     color: '#F9F6F1',
                     fontFamily: 'var(--font-display)',
                     fontSize: '0.85rem',
@@ -199,7 +256,7 @@ export function TestimonialsSection() {
                     borderRadius: '50%',
                   }}
                 >
-                  {testimonials[active].name.charAt(0)}
+                  {currentItem.name.charAt(0)}
                 </div>
                 <div>
                   <div
@@ -210,7 +267,7 @@ export function TestimonialsSection() {
                       color: 'var(--foreground)',
                     }}
                   >
-                    {testimonials[active].name}
+                    {currentItem.name}
                   </div>
                   <div
                     style={{
@@ -219,7 +276,7 @@ export function TestimonialsSection() {
                       color: 'var(--muted-foreground)',
                     }}
                   >
-                    {testimonials[active].role}
+                    {currentItem.role}
                   </div>
                 </div>
               </div>
@@ -228,5 +285,5 @@ export function TestimonialsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

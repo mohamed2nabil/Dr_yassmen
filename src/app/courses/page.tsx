@@ -1,66 +1,112 @@
-"use client";
+'use client';
 
-import { CourseCard } from '../components/CourseCard'
+import { useState, useEffect } from 'react';
+import { CourseCard } from '../components/CourseCard';
+import { getCourses } from '@/app/actions/courseActions';
 
 interface Course {
-  id: string
-  title: string
-  category: string
-  description: string
-  duration: string
-  date: string
-  image: string
-  categoryColor: string
-  categoryBg: string
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  duration: string;
+  date: string;
+  image: string;
+  categoryColor: string;
+  categoryBg: string;
 }
 
+const fallbackCourses: Course[] = [
+  {
+    id: '1',
+    title: 'Introduction to Visual Art Fundamentals',
+    category: 'Art Education',
+    description: 'Explore the foundational principles of visual art including color theory, composition, and form. Perfect for beginners and aspiring artists.',
+    duration: '8 weeks',
+    date: 'July 15, 2026',
+    image: 'https://images.unsplash.com/photo-1740710543611-80b658171bc3?w=600&h=400&fit=crop&auto=format',
+    categoryColor: 'var(--chapter-art)',
+    categoryBg: 'var(--chapter-art-bg)',
+  },
+  {
+    id: '2',
+    title: 'Interior Design for Modern Spaces',
+    category: 'Interior Design',
+    description: 'Learn how to design functional and aesthetically pleasing interior spaces. Covering layout, materials, lighting, and spatial planning.',
+    duration: '10 weeks',
+    date: 'August 1, 2026',
+    image: 'https://images.unsplash.com/photo-1646987916641-1f3c8992daa2?w=600&h=400&fit=crop&auto=format',
+    categoryColor: 'var(--chapter-interior)',
+    categoryBg: 'var(--chapter-interior-bg)',
+  },
+  {
+    id: '3',
+    title: 'Art Therapy for Emotional Expression',
+    category: 'Art Therapy',
+    description: 'Discover the healing power of art through therapeutic practices. Learn techniques to facilitate creative expression and emotional well-being.',
+    duration: '6 weeks',
+    date: 'July 22, 2026',
+    image: 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=600&h=400&fit=crop&auto=format',
+    categoryColor: 'var(--chapter-therapy)',
+    categoryBg: 'var(--chapter-therapy-bg)',
+  },
+  {
+    id: '4',
+    title: 'Teaching Art: Pedagogy & Creativity',
+    category: 'Art Education',
+    description: 'Master the art of teaching creativity. Learn instructional strategies, curriculum design, and how to inspire students of all ages.',
+    duration: '9 weeks',
+    date: 'August 12, 2026',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop&auto=format',
+    categoryColor: 'var(--chapter-art)',
+    categoryBg: 'var(--chapter-art-bg)',
+  },
+];
+
 export default function CoursesPage() {
-  const courses: Course[] = [
-    {
-      id: '1',
-      title: 'Introduction to Visual Art Fundamentals',
-      category: 'Art Education',
-      description: 'Explore the foundational principles of visual art including color theory, composition, and form. Perfect for beginners and aspiring artists.',
-      duration: '8 weeks',
-      date: 'July 15, 2026',
-      image: 'https://images.unsplash.com/photo-1740710543611-80b658171bc3?w=600&h=400&fit=crop&auto=format',
-      categoryColor: 'var(--chapter-art)',
-      categoryBg: 'var(--chapter-art-bg)',
-    },
-    {
-      id: '2',
-      title: 'Interior Design for Modern Spaces',
-      category: 'Interior Design',
-      description: 'Learn how to design functional and aesthetically pleasing interior spaces. Covering layout, materials, lighting, and spatial planning.',
-      duration: '10 weeks',
-      date: 'August 1, 2026',
-      image: 'https://images.unsplash.com/photo-1646987916641-1f3c8992daa2?w=600&h=400&fit=crop&auto=format',
-      categoryColor: 'var(--chapter-interior)',
-      categoryBg: 'var(--chapter-interior-bg)',
-    },
-    {
-      id: '3',
-      title: 'Art Therapy for Emotional Expression',
-      category: 'Art Therapy',
-      description: 'Discover the healing power of art through therapeutic practices. Learn techniques to facilitate creative expression and emotional well-being.',
-      duration: '6 weeks',
-      date: 'July 22, 2026',
-      image: 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=600&h=400&fit=crop&auto=format',
-      categoryColor: 'var(--chapter-therapy)',
-      categoryBg: 'var(--chapter-therapy-bg)',
-    },
-    {
-      id: '4',
-      title: 'Teaching Art: Pedagogy & Creativity',
-      category: 'Art Education',
-      description: 'Master the art of teaching creativity. Learn instructional strategies, curriculum design, and how to inspire students of all ages.',
-      duration: '9 weeks',
-      date: 'August 12, 2026',
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop&auto=format',
-      categoryColor: 'var(--chapter-art)',
-      categoryBg: 'var(--chapter-art-bg)',
-    },
-  ]
+  const [courses, setCourses] = useState<Course[]>(fallbackCourses);
+
+  useEffect(() => {
+    async function loadCourses() {
+      try {
+        const dbCourses = await getCourses();
+        // filter visible courses
+        const visible = dbCourses.filter((c) => c.isVisible);
+        if (visible.length > 0) {
+          const colors: Record<string, { color: string; bg: string }> = {
+            'Visual Art': { color: 'var(--chapter-art)', bg: 'var(--chapter-art-bg)' },
+            'Interior Design': { color: 'var(--chapter-interior)', bg: 'var(--chapter-interior-bg)' },
+            'Art Education': { color: 'var(--chapter-art)', bg: 'var(--chapter-art-bg)' },
+            'Art Therapy': { color: 'var(--chapter-therapy)', bg: 'var(--chapter-therapy-bg)' },
+          };
+
+          setCourses(
+            visible.map((c) => {
+              const theme = colors[c.category] || { color: 'var(--chapter-art)', bg: 'var(--chapter-art-bg)' };
+              return {
+                id: String(c.id),
+                title: c.title,
+                category: c.category,
+                description: c.description,
+                duration: c.duration,
+                date: new Date(c.date).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                }),
+                image: c.imageUrl,
+                categoryColor: theme.color,
+                categoryBg: theme.bg,
+              };
+            })
+          );
+        }
+      } catch (error) {
+        console.error('Failed to load courses from DB:', error);
+      }
+    }
+    loadCourses();
+  }, []);
 
   return (
     <main style={{ background: 'var(--background)' }}>
@@ -158,6 +204,14 @@ export default function CoursesPage() {
           </p>
 
           <button
+            onClick={() => {
+              const contactEl = document.getElementById('contact');
+              if (contactEl) {
+                contactEl.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.location.href = '/#contact';
+              }
+            }}
             className="px-8 py-3.5 transition-all duration-200 hover:opacity-80"
             style={{
               background: 'var(--foreground)',
@@ -177,5 +231,5 @@ export default function CoursesPage() {
         </div>
       </section>
     </main>
-  )
+  );
 }

@@ -21,14 +21,16 @@ model User {
 }
 
 model Project {
-  id             Int      @id @default(autoincrement())
-  title          String
-  description    String   @db.Text
-  category       String
-  imageUrl       String
-  beforeImageUrl String?
-  afterImageUrl  String?
-  createdAt      DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String   @db.Text
+  category     String
+  dateLocation String
+  mainImage    String
+  beforeImage  String?
+  afterImage   String?
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
 }
 
 model Course {
@@ -39,17 +41,42 @@ model Course {
   duration    String
   date        DateTime
   imageUrl    String
-  status      String   @default("active") // e.g., active, draft, upcoming
+  capacity    Int      @default(20)
+  enrolled    Int      @default(0)
+  status      String   @default("Draft") // 'Draft' | 'Published'
+  isVisible   Boolean  @default(true)
   createdAt   DateTime @default(now())
+}
+
+model Stat {
+  id    Int    @id @default(autoincrement())
+  value String
+  label String
+}
+
+model Testimonial {
+  id         Int      @id @default(autoincrement())
+  clientName String
+  content    String   @db.Text
+  role       String
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }
 
 model Message {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
-  subject   String
-  content   String   @db.Text
+  phone     String?
   interests String?  // Flexible string for interests (e.g. comma-separated list or JSON string)
+  message   String   @db.Text
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model Profile {
+  id           Int    @id @default(autoincrement())
+  name         String
+  bio          String @db.Text
+  contactEmail String
 }

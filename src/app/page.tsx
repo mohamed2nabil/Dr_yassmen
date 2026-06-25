@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from 'react'
-import { Navigation } from './components/Navigation'
-import { HeroSection } from './components/HeroSection'
-import { PhilosophySection } from './components/PhilosophySection'
-import { ChapterSection } from './components/ChapterSection'
-import { ArtTherapySection } from './components/ArtTherapySection'
-import { StatsSection } from './components/StatsSection'
-import { TestimonialsSection } from './components/TestimonialsSection'
-import { ContactSection } from './components/ContactSection'
+import { useEffect, useState } from 'react';
+import { Navigation } from './components/Navigation';
+import { HeroSection } from './components/HeroSection';
+import { PhilosophySection } from './components/PhilosophySection';
+import { ChapterSection } from './components/ChapterSection';
+import { ArtTherapySection } from './components/ArtTherapySection';
+import { StatsSection } from './components/StatsSection';
+import { TestimonialsSection } from './components/TestimonialsSection';
+import { ContactSection } from './components/ContactSection';
+import { getProjects } from '@/app/actions/projectActions';
 
-const visualArtProjects = [
+const fallbackVisualArtProjects = [
   {
     title: 'Layers of Belonging',
     subtitle: 'Mixed Media Series',
@@ -38,9 +39,9 @@ const visualArtProjects = [
     image:
       'https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?w=800&h=500&fit=crop&auto=format',
   },
-]
+];
 
-const interiorProjects = [
+const fallbackInteriorProjects = [
   {
     title: 'Zamalek Penthouse',
     subtitle: 'Residential',
@@ -80,9 +81,9 @@ const interiorProjects = [
     after:
       'https://images.unsplash.com/photo-1720247520881-672bc136da8a?w=800&h=500&fit=crop&auto=format',
   },
-]
+];
 
-const educationProjects = [
+const fallbackEducationProjects = [
   {
     title: 'Advanced Studio Practice',
     subtitle: 'University Course',
@@ -110,7 +111,7 @@ const educationProjects = [
     image:
       'https://images.unsplash.com/photo-1765812515298-f299f9e29b68?w=800&h=500&fit=crop&auto=format',
   },
-]
+];
 
 const sections = [
   'hero',
@@ -120,28 +121,65 @@ const sections = [
   'education',
   'art-therapy',
   'contact',
-]
+];
 
 export default function Page() {
-  const [activeSection, setActiveSection] = useState('hero')
+  const [activeSection, setActiveSection] = useState('hero');
+  const [visualArtProjects, setVisualArtProjects] = useState(fallbackVisualArtProjects);
+  const [interiorProjects, setInteriorProjects] = useState(fallbackInteriorProjects);
+  const [educationProjects, setEducationProjects] = useState(fallbackEducationProjects);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveSection(entry.target.id)
+            setActiveSection(entry.target.id);
           }
-        })
+        });
       },
       { threshold: 0.3 }
-    )
+    );
     sections.forEach((id) => {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
-    })
-    return () => observer.disconnect()
-  }, [])
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        const dbProjects = await getProjects();
+        const visible = dbProjects.filter((p) => p.isVisible);
+
+        if (visible.length > 0) {
+          const mapProject = (p: typeof dbProjects[0]) => ({
+            title: p.title,
+            subtitle: p.category,
+            tag: p.dateLocation,
+            description: p.description,
+            image: p.mainImage,
+            before: p.beforeImage || undefined,
+            after: p.afterImage || undefined,
+          });
+
+          const art = visible.filter((p) => p.category === 'Visual Art').map(mapProject);
+          const interior = visible.filter((p) => p.category === 'Interior Design').map(mapProject);
+          const edu = visible
+            .filter((p) => p.category === 'Art Education' || p.category === 'Art Therapy')
+            .map(mapProject);
+
+          if (art.length > 0) setVisualArtProjects(art);
+          if (interior.length > 0) setInteriorProjects(interior);
+          if (edu.length > 0) setEducationProjects(edu);
+        }
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      }
+    }
+    loadProjects();
+  }, []);
 
   return (
     <div
@@ -194,5 +232,5 @@ export default function Page() {
       <TestimonialsSection />
       <ContactSection />
     </div>
-  )
+  );
 }

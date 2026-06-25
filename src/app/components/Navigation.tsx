@@ -102,7 +102,7 @@ export function Navigation({ activeSection }: NavigationProps) {
               </button>
             ))}
             <button
-              onClick={() => window.location.href = '/courses'}
+              onClick={() => window.open('/courses', '_blank')}
               className="relative transition-all duration-200 group"
               style={{
                 fontFamily: "var(--font-body)",
@@ -154,9 +154,8 @@ export function Navigation({ activeSection }: NavigationProps) {
 
       {/* Mobile Drawer (Sidebar) */}
       <div
-        className={`fixed inset-y-0 right-0 w-64 h-full shadow-2xl transition-transform duration-300 transform lg:hidden z-40 ${
-          menuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed inset-y-0 right-0 w-64 h-full shadow-2xl transition-transform duration-300 transform lg:hidden z-40 ${menuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         style={{ background: "var(--background)", borderLeft: "1px solid var(--border)" }}
       >
         <div className="flex flex-col p-8 pt-20 gap-6">

@@ -1,30 +1,73 @@
-"use client";
-
 'use client';
 
-import { useState } from 'react';
-import { Save, Eye, EyeOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Save, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { getProfile, updateProfile } from '@/app/actions/profileActions';
 import { toast } from 'sonner';
 
 export function SettingsPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  
+  const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profile = await getProfile();
+        setName(profile.name);
+        setBio(profile.bio);
+        setContactEmail(profile.contactEmail);
+      } catch (error) {
+        toast.error('Failed to load profile');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Profile updated successfully');
+    setIsSaving(true);
+    try {
+      await updateProfile({
+        name,
+        bio,
+        contactEmail,
+      });
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSaveConfiguration = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success('Site configuration saved successfully');
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+        <Loader2 className="h-8 w-8 animate-spin mb-2" />
+        <p>Loading settings...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -54,30 +97,23 @@ export function SettingsPage() {
             <CardContent>
               <form onSubmit={handleSaveProfile} className="space-y-6">
                 <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="first-name">First Name</Label>
-                      <Input
-                        id="first-name"
-                        defaultValue="Yassmin"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="last-name">Last Name</Label>
-                      <Input
-                        id="last-name"
-                        defaultValue="Allam"
-                        required
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullname">Full Name</Label>
+                    <Input
+                      id="fullname"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <Input
-                      id="username"
-                      defaultValue="dryassminallam"
+                    <Label htmlFor="bio">Biography / Description</Label>
+                    <Textarea
+                      id="bio"
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={4}
                       required
                     />
                   </div>
@@ -87,79 +123,26 @@ export function SettingsPage() {
                     <Input
                       id="email"
                       type="email"
-                      defaultValue="admin@dryassminallam.com"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
                       required
                     />
                   </div>
                 </div>
 
-                <Separator />
-
-                <div className="space-y-4">
-                  <h3 className="font-medium">Change Password</h3>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="current-password">Current Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="current-password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter current password"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="new-password">New Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="new-password"
-                        type={showNewPassword ? 'text' : 'password'}
-                        placeholder="Enter new password"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                      >
-                        {showNewPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm New Password</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      placeholder="Confirm new password"
-                    />
-                  </div>
-                </div>
-
                 <div className="flex justify-end">
-                  <Button type="submit">
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Profile
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Profile
+                      </>
+                    )}
                   </Button>
                 </div>
               </form>
@@ -206,102 +189,6 @@ export function SettingsPage() {
                     <p className="text-xs text-muted-foreground">
                       Used for SEO and social media previews (150-160 characters recommended)
                     </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="site-url">Site URL</Label>
-                    <Input
-                      id="site-url"
-                      type="url"
-                      defaultValue="https://www.dryassminallam.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h3 className="font-medium">Contact Information</h3>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="contact-email">Contact Email</Label>
-                    <Input
-                      id="contact-email"
-                      type="email"
-                      defaultValue="contact@dryassminallam.com"
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        defaultValue="+1 (555) 123-4567"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="whatsapp">WhatsApp Number</Label>
-                      <Input
-                        id="whatsapp"
-                        type="tel"
-                        placeholder="+1 (555) 123-4567"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Business Address</Label>
-                    <Input
-                      id="address"
-                      defaultValue="123 Art Street, Creative City, CC 12345"
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h3 className="font-medium">Paths & URLs</h3>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="portfolio-url">Portfolio Page URL</Label>
-                    <Input
-                      id="portfolio-url"
-                      defaultValue="/portfolio"
-                      placeholder="/portfolio"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="courses-url">Courses Page URL</Label>
-                    <Input
-                      id="courses-url"
-                      defaultValue="/courses"
-                      placeholder="/courses"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="contact-url">Contact Page URL</Label>
-                    <Input
-                      id="contact-url"
-                      defaultValue="/contact"
-                      placeholder="/contact"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="blog-url">Blog/News Page URL</Label>
-                    <Input
-                      id="blog-url"
-                      defaultValue="/blog"
-                      placeholder="/blog"
-                    />
                   </div>
                 </div>
 
@@ -352,42 +239,6 @@ export function SettingsPage() {
                       id="linkedin"
                       type="url"
                       placeholder="https://linkedin.com/in/username"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="behance">Behance</Label>
-                    <Input
-                      id="behance"
-                      type="url"
-                      placeholder="https://behance.net/username"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="pinterest">Pinterest</Label>
-                    <Input
-                      id="pinterest"
-                      type="url"
-                      placeholder="https://pinterest.com/username"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="twitter">Twitter / X</Label>
-                    <Input
-                      id="twitter"
-                      type="url"
-                      placeholder="https://twitter.com/username"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="youtube">YouTube</Label>
-                    <Input
-                      id="youtube"
-                      type="url"
-                      placeholder="https://youtube.com/@username"
                     />
                   </div>
                 </div>

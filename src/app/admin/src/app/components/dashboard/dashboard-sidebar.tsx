@@ -12,6 +12,7 @@ import {
   Eye,
   X,
   LogOut,
+  BarChart,
 } from 'lucide-react';
 import { cn } from '@/components/ui/utils';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,11 @@ const navigation = [
     name: 'Vouts',
     href: '/admin/vouts',
     icon: Eye,
+  },
+  {
+    name: 'Stats',
+    href: '/admin/stats',
+    icon: BarChart,
   },
   {
     name: 'Media',

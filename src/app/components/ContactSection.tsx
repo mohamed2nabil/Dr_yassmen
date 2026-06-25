@@ -1,6 +1,77 @@
-import { Mail, Instagram, Phone, QrCode } from 'lucide-react'
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Mail, Instagram, Phone, QrCode, Loader2 } from 'lucide-react';
+import { createMessage } from '@/app/actions/messageActions';
+import { getProfile } from '@/app/actions/profileActions';
+import { toast } from 'sonner';
 
 export function ContactSection() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [message, setMessage] = useState('');
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Dynamic Contact info
+  const [contactEmail, setContactEmail] = useState('hello@yassminalllam.com');
+  const [whatsapp, setWhatsapp] = useState('+20 100 000 0000');
+  const [instagram, setInstagram] = useState('@dr.yassmin_allam');
+
+  useEffect(() => {
+    async function loadContactInfo() {
+      try {
+        const profile = await getProfile();
+        if (profile) {
+          setContactEmail(profile.contactEmail);
+        }
+      } catch (error) {
+        console.error('Failed to load contact profile:', error);
+      }
+    }
+    loadContactInfo();
+  }, []);
+
+  const handleCheckboxChange = (interest: string, checked: boolean) => {
+    if (checked) {
+      setSelectedInterests((prev) => [...prev, interest]);
+    } else {
+      setSelectedInterests((prev) => prev.filter((i) => i !== interest));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !message) {
+      toast.error('Please fill in Name, Email and Message.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await createMessage({
+        name,
+        email,
+        phone,
+        interests: selectedInterests.join(', '),
+        message,
+      });
+
+      toast.success('Message sent successfully!');
+      // Reset form
+      setName('');
+      setEmail('');
+      setPhone('');
+      setMessage('');
+      setSelectedInterests([]);
+    } catch (error) {
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section
       id="contact"
@@ -62,13 +133,13 @@ export function ContactSection() {
                 {
                   icon: Mail,
                   label: 'Email',
-                  value: 'hello@yassminalllam.com',
+                  value: contactEmail,
                 },
-                { icon: Phone, label: 'WhatsApp', value: '+20 100 000 0000' },
+                { icon: Phone, label: 'WhatsApp', value: whatsapp },
                 {
                   icon: Instagram,
                   label: 'Instagram',
-                  value: '@dr.yassmin_allam',
+                  value: instagram,
                 },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-center gap-4">
@@ -110,7 +181,8 @@ export function ContactSection() {
 
           {/* Center — booking form */}
           <div className="lg:col-span-4">
-            <div
+            <form
+              onSubmit={handleSubmit}
               className="p-8"
               style={{
                 background: 'rgba(249,246,241,0.04)',
@@ -129,30 +201,63 @@ export function ContactSection() {
                 Send a Message
               </div>
               <div className="flex flex-col gap-4">
-                {['Your Name', 'Email Address', 'Subject'].map((ph) => (
-                  <input
-                    key={ph}
-                    placeholder={ph}
-                    className="w-full px-4 py-3 outline-none transition-all duration-200"
-                    style={{
-                      background: 'rgba(249,246,241,0.06)',
-                      border: '1px solid rgba(249,246,241,0.12)',
-                      borderRadius: '2px',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '0.9rem',
-                      color: '#F9F6F1',
-                    }}
-                    onFocus={(e) =>
-                      (e.target.style.borderColor = 'var(--accent)')
-                    }
-                    onBlur={(e) =>
-                      (e.target.style.borderColor = 'rgba(249,246,241,0.12)')
-                    }
-                  />
-                ))}
+                <input
+                  placeholder="Your Name *"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 outline-none transition-all duration-200"
+                  style={{
+                    background: 'rgba(249,246,241,0.06)',
+                    border: '1px solid rgba(249,246,241,0.12)',
+                    borderRadius: '2px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.9rem',
+                    color: '#F9F6F1',
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'rgba(249,246,241,0.12)')}
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address *"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 outline-none transition-all duration-200"
+                  style={{
+                    background: 'rgba(249,246,241,0.06)',
+                    border: '1px solid rgba(249,246,241,0.12)',
+                    borderRadius: '2px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.9rem',
+                    color: '#F9F6F1',
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'rgba(249,246,241,0.12)')}
+                />
+                <input
+                  placeholder="Phone Number (Optional)"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-4 py-3 outline-none transition-all duration-200"
+                  style={{
+                    background: 'rgba(249,246,241,0.06)',
+                    border: '1px solid rgba(249,246,241,0.12)',
+                    borderRadius: '2px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.9rem',
+                    color: '#F9F6F1',
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'rgba(249,246,241,0.12)')}
+                />
                 <textarea
-                  placeholder="Tell me about your project or inquiry..."
+                  placeholder="Tell me about your project or inquiry... *"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   rows={4}
+                  required
                   className="w-full px-4 py-3 outline-none transition-all duration-200 resize-none"
                   style={{
                     background: 'rgba(249,246,241,0.06)',
@@ -162,12 +267,8 @@ export function ContactSection() {
                     fontSize: '0.9rem',
                     color: '#F9F6F1',
                   }}
-                  onFocus={(e) =>
-                    (e.target.style.borderColor = 'var(--accent)')
-                  }
-                  onBlur={(e) =>
-                    (e.target.style.borderColor = 'rgba(249,246,241,0.12)')
-                  }
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'rgba(249,246,241,0.12)')}
                 />
                 {/* Discipline selector */}
                 <div
@@ -206,6 +307,8 @@ export function ContactSection() {
                     >
                       <input
                         type="checkbox"
+                        checked={selectedInterests.includes(d.label)}
+                        onChange={(e) => handleCheckboxChange(d.label, e.target.checked)}
                         className="accent-[var(--accent)]"
                       />
                       {d.label}
@@ -213,7 +316,9 @@ export function ContactSection() {
                   ))}
                 </div>
                 <button
-                  className="w-full py-3.5 mt-2 transition-all duration-200 hover:opacity-80"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 mt-2 transition-all duration-200 hover:opacity-80 flex items-center justify-center"
                   style={{
                     background: 'var(--accent)',
                     color: '#F9F6F1',
@@ -225,10 +330,17 @@ export function ContactSection() {
                     borderRadius: '2px',
                   }}
                 >
-                  Send Message
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Message'
+                  )}
                 </button>
               </div>
-            </div>
+            </form>
           </div>
 
           {/* Right — QR code */}
@@ -249,7 +361,6 @@ export function ContactSection() {
                   border: '1px solid rgba(249,246,241,0.15)',
                 }}
               >
-                {/* QR code placeholder — replace with real QR */}
                 <div className="flex flex-col items-center gap-2">
                   <QrCode size={48} style={{ color: 'var(--accent)' }} />
                   <div
@@ -301,7 +412,6 @@ export function ContactSection() {
               </div>
             </div>
 
-            {/* Chapter color accent block */}
             <div className="mt-4 grid grid-cols-4 gap-1">
               {[
                 'var(--chapter-art)',
@@ -348,5 +458,5 @@ export function ContactSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

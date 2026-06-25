@@ -11,6 +11,7 @@ export interface Project {
   date: string;
   beforeImage?: string; // For Interior Design projects
   afterImage?: string; // For Interior Design projects
+  isVisible?: boolean;
 }
 
 export type CourseStatus = 'Draft' | 'Published';
@@ -25,6 +26,7 @@ export interface Course {
   capacity: number;
   enrolled: number;
   image: string;
+  isVisible?: boolean;
 }
 
 export type MessageStatus = 'Read' | 'Unread';

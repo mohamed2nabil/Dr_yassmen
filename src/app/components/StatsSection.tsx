@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
+import { getStats } from '@/app/actions/statActions';
 
-const stats = [
+const fallbackStats = [
   {
     value: 15,
     suffix: '+',
@@ -45,50 +46,84 @@ const stats = [
     arabic: 'دول',
     color: 'var(--chapter-education)',
   },
-]
+];
 
 function AnimatedNumber({
   target,
   suffix,
 }: {
-  target: number
-  suffix: string
+  target: number;
+  suffix: string;
 }) {
-  const [current, setCurrent] = useState(0)
-  const ref = useRef<HTMLDivElement>(null)
-  const started = useRef(false)
+  const [current, setCurrent] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !started.current) {
-          started.current = true
-          const duration = 1500
-          const start = performance.now()
+          started.current = true;
+          const duration = 1500;
+          const start = performance.now();
           const animate = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1)
-            const eased = 1 - Math.pow(1 - progress, 3)
-            setCurrent(Math.round(eased * target))
-            if (progress < 1) requestAnimationFrame(animate)
-          }
-          requestAnimationFrame(animate)
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCurrent(Math.round(eased * target));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
         }
       },
       { threshold: 0.3 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [target])
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
 
   return (
     <div ref={ref}>
       {current.toLocaleString()}
       {suffix}
     </div>
-  )
+  );
 }
 
 export function StatsSection() {
+  const [stats, setStats] = useState(fallbackStats);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const dbStats = await getStats();
+        if (dbStats.length > 0) {
+          const colors = [
+            'var(--chapter-art)',
+            'var(--chapter-education)',
+            'var(--chapter-interior)',
+            'var(--chapter-therapy)',
+          ];
+          setStats(
+            dbStats.map((s, idx) => {
+              const numericValue = parseInt(s.value) || 0;
+              const suffix = s.value.replace(String(numericValue), '').trim();
+              return {
+                value: numericValue,
+                suffix,
+                label: s.label,
+                arabic: '',
+                color: colors[idx % colors.length],
+              };
+            })
+          );
+        }
+      } catch (error) {
+        console.error('Failed to load stats from DB:', error);
+      }
+    };
+    loadStats();
+  }, []);
+
   return (
     <section
       className="py-12 sm:py-16 lg:py-20"
@@ -116,9 +151,9 @@ export function StatsSection() {
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px"
           style={{ background: 'var(--border)' }}
         >
-          {stats.map((s) => (
+          {stats.map((s, idx) => (
             <div
-              key={s.label}
+              key={idx}
               className="p-6 lg:p-8"
               style={{ background: 'var(--secondary)' }}
             >
@@ -144,20 +179,22 @@ export function StatsSection() {
               >
                 {s.label}
               </div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.75rem',
-                  color: 'var(--muted-foreground)',
-                  fontStyle: 'italic',
-                }}
-              >
-                {s.arabic}
-              </div>
+              {s.arabic && (
+                <div
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.75rem',
+                    color: 'var(--muted-foreground)',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {s.arabic}
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

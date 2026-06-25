@@ -1,9 +1,7 @@
-"use client";
-
 'use client';
 
-import { useState } from 'react';
-import { MoreHorizontal, Pencil, Trash2, Eye, Search, Users, EyeOff, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MoreHorizontal, Pencil, Trash2, Eye, Search, Users, EyeOff, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -32,26 +30,70 @@ import {
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { AddCourseDialog } from '@/components/courses/add-course-dialog';
-import { mockCourses } from '@/lib/mock-data';
 import { Course, CourseStatus } from '@/types/dashboard';
+import { getCourses, deleteCourse, toggleCourseVisibility } from '@/app/actions/courseActions';
 import { toast } from 'sonner';
 
 export function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<CourseStatus | 'All'>('All');
-  const [courses, setCourses] = useState<Course[]>(mockCourses);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchAllCourses = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getCourses();
+      setCourses(
+        data.map((c) => ({
+          id: String(c.id),
+          title: c.title,
+          description: c.description,
+          status: c.status as CourseStatus,
+          date: c.date.toISOString().split('T')[0],
+          duration: c.duration,
+          capacity: c.capacity,
+          enrolled: c.enrolled,
+          image: c.imageUrl,
+        }))
+      );
+    } catch (e) {
+      toast.error('Failed to load courses');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllCourses();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCourse(Number(id));
+      setCourses((prev) => prev.filter((c) => c.id !== id));
+      toast.success('Course deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete course');
+    }
+  };
+
+  const handleToggleHide = async (id: string) => {
+    try {
+      const updated = await toggleCourseVisibility(Number(id));
+      toast.success(`Course is now ${updated.isVisible ? 'visible' : 'hidden'} on the website.`);
+    } catch (error) {
+      toast.error('Failed to toggle course visibility');
+    }
+  };
 
   const filteredCourses = courses.filter((course) => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch =
+      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       course.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'All' || course.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  const handleDelete = (id: string) => {
-    setCourses((prev) => prev.filter((c) => c.id !== id));
-    toast.success('Course deleted successfully');
-  };
 
   return (
     <div className="space-y-6">
@@ -62,10 +104,7 @@ export function CoursesPage() {
             Manage your course offerings and track enrollments
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Course
-        </Button>
+        <AddCourseDialog onCourseAdded={fetchAllCourses} />
       </div>
 
       {/* Filters */}
@@ -79,7 +118,10 @@ export function CoursesPage() {
             className="pl-10"
           />
         </div>
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as CourseStatus | 'All')}>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value as CourseStatus | 'All')}
+        >
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -93,122 +135,117 @@ export function CoursesPage() {
 
       {/* Courses Table */}
       <div className="rounded-lg border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Course Title</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Enrollment</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead className="w-[80px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredCourses.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin mb-2" />
+            <p>Loading courses...</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  No courses found
-                </TableCell>
+                <TableHead>Course Title</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Enrollment</TableHead>
+                <TableHead>Duration</TableHead>
+                <TableHead>Start Date</TableHead>
+                <TableHead className="w-[80px]">Actions</TableHead>
               </TableRow>
-            ) : (
-              filteredCourses.map((course) => {
-                const enrollmentPercentage = (course.enrolled / course.capacity) * 100;
-                
-                return (
-                  <TableRow key={course.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={course.image}
-                          alt={course.title}
-                          className="h-12 w-16 rounded object-cover"
-                        />
-                        <div className="space-y-1">
-                          <p className="font-medium">{course.title}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-1">
-                            {course.description}
-                          </p>
+            </TableHeader>
+            <TableBody>
+              {filteredCourses.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    No courses found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredCourses.map((course) => {
+                  const enrollmentPercentage = (course.enrolled / course.capacity) * 100;
+
+                  return (
+                    <TableRow key={course.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={course.image}
+                            alt={course.title}
+                            className="h-12 w-16 rounded object-cover border"
+                          />
+                          <div className="space-y-1">
+                            <p className="font-medium">{course.title}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-1">
+                              {course.description}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={course.status === 'Published' ? 'default' : 'secondary'}
-                      >
-                        {course.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-2 min-w-[160px]">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            {course.enrolled}/{course.capacity}
-                          </span>
-                          <span className="text-muted-foreground">
-                            {Math.round(enrollmentPercentage)}%
-                          </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={course.status === 'Published' ? 'default' : 'secondary'}
+                        >
+                          {course.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-2 min-w-[160px]">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {course.enrolled}/{course.capacity}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {Math.round(enrollmentPercentage)}%
+                            </span>
+                          </div>
+                          <Progress value={enrollmentPercentage} className="h-2" />
                         </div>
-                        <Progress value={enrollmentPercentage} className="h-2" />
-                      </div>
-                    </TableCell>
-                    <TableCell>{course.duration}</TableCell>
-                    <TableCell>
-                      {new Date(course.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Users className="mr-2 h-4 w-4" />
-                            Manage Students
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <EyeOff className="mr-2 h-4 w-4" />
-                            Hide from Courses Page
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => handleDelete(course.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+                      </TableCell>
+                      <TableCell>{course.duration}</TableCell>
+                      <TableCell>
+                        {new Date(course.date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleToggleHide(course.id)}>
+                              <EyeOff className="mr-2 h-4 w-4" />
+                              Toggle Visibility
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleDelete(course.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       {/* Pagination */}
-      {filteredCourses.length > 0 && (
+      {!isLoading && filteredCourses.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             Showing {filteredCourses.length} of {courses.length} courses
