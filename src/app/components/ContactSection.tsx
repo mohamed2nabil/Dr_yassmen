@@ -25,6 +25,9 @@ export function ContactSection() {
         const profile = await getProfile();
         if (profile) {
           setContactEmail(profile.contactEmail);
+          if (profile.instagramUrl) {
+            setInstagram(profile.instagramUrl);
+          }
         }
       } catch (error) {
         console.error('Failed to load contact profile:', error);
@@ -442,7 +445,7 @@ export function ContactSection() {
               fontStyle: 'italic',
             }}
           >
-            © 2024 Dr. Yassmin Allam · جميع الحقوق محفوظة
+            © 2026 Dr. Yassmin Allam · جميع الحقوق محفوظة
           </div>
           <div
             style={{

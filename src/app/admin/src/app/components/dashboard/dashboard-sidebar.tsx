@@ -13,6 +13,8 @@ import {
   X,
   LogOut,
   BarChart,
+  BookOpen,
+  Quote,
 } from 'lucide-react';
 import { cn } from '@/components/ui/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +34,16 @@ const navigation = [
     name: 'Courses',
     href: '/admin/courses',
     icon: GraduationCap,
+  },
+  {
+    name: 'Workshops',
+    href: '/admin/workshops',
+    icon: BookOpen,
+  },
+  {
+    name: 'Client Stories',
+    href: '/admin/stories',
+    icon: Quote,
   },
   {
     name: 'Inbox',

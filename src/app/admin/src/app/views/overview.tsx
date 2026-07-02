@@ -1,13 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { LayoutDashboard, FolderKanban, Mail, Eye, MessageSquare, GraduationCap, Loader2 } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Mail, Eye, MessageSquare, GraduationCap } from 'lucide-react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getProjects } from '@/app/actions/projectActions';
-import { getCourses } from '@/app/actions/courseActions';
-import { getMessages } from '@/app/actions/messageActions';
 
 type DashboardStats = {
   totalProjects: number;
@@ -31,99 +27,71 @@ type CategoryStats = {
   color: string;
 };
 
-export function OverviewPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalProjects: 0,
-    newMessages: 0,
-    activeCourses: 0,
-    totalViews: 1250, // Simulated baseline views
-  });
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
-  const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface OverviewPageProps {
+  initialProjects?: any[];
+  initialCourses?: any[];
+  initialMessages?: any[];
+  initialViews?: number;
+}
 
-  useEffect(() => {
-    const loadOverviewData = async () => {
-      try {
-        const [projects, courses, messages] = await Promise.all([
-          getProjects(),
-          getCourses(),
-          getMessages(),
-        ]);
+export function OverviewPage({
+  initialProjects = [],
+  initialCourses = [],
+  initialMessages = [],
+  initialViews = 0,
+}: OverviewPageProps) {
+  const totalProjectsCount = initialProjects.length;
+  const newMessagesCount = initialMessages.filter((m) => !m.isRead).length;
+  const activeCoursesCount = initialCourses.filter((c) => c.status === 'Published').length;
 
-        // Calculate counts
-        const totalProjectsCount = projects.length;
-        const newMessagesCount = messages.filter((m) => !m.isRead).length;
-        const activeCoursesCount = courses.filter((c) => c.status === 'Published').length;
+  const stats: DashboardStats = {
+    totalProjects: totalProjectsCount,
+    newMessages: newMessagesCount,
+    activeCourses: activeCoursesCount,
+    totalViews: initialViews,
+  };
 
-        setStats((prev) => ({
-          ...prev,
-          totalProjects: totalProjectsCount,
-          newMessages: newMessagesCount,
-          activeCourses: activeCoursesCount,
-        }));
-
-        // Categories stats
-        const categories = ['Visual Art', 'Interior Design', 'Art Education', 'Art Therapy'];
-        const colors = ['bg-purple-500', 'bg-blue-500', 'bg-green-500', 'bg-amber-500'];
-        const catsMap = categories.map((cat, idx) => {
-          const count = projects.filter((p) => p.category === cat).length;
-          const percentage = totalProjectsCount > 0 ? Math.round((count / totalProjectsCount) * 100) : 0;
-          return {
-            name: cat,
-            count,
-            percentage,
-            color: colors[idx],
-          };
-        });
-        setCategoryStats(catsMap);
-
-        // Recent activity
-        const recentMsgs: RecentActivity[] = messages.slice(0, 3).map((m) => ({
-          id: `msg-${m.id}`,
-          type: 'message' as const,
-          title: `New message from ${m.name}`,
-          description: m.message,
-          date: m.createdAt.toISOString(),
-        }));
-
-        const recentCourses: RecentActivity[] = courses.slice(0, 2).map((c) => ({
-          id: `course-${c.id}`,
-          type: 'course' as const,
-          title: `New course created: "${c.title}"`,
-          description: `Capacity: ${c.capacity}`,
-          date: c.createdAt.toISOString(),
-        }));
-
-        const combined = [...recentMsgs, ...recentCourses].sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        setRecentActivities(combined);
-      } catch (error) {
-        console.error('Error loading dashboard overview:', error);
-      } finally {
-        setIsLoading(false);
-      }
+  // Categories stats
+  const categories = ['Visual Art', 'Interior Design', 'Art Education', 'Art Therapy'];
+  const colors = ['bg-purple-500', 'bg-blue-500', 'bg-green-500', 'bg-amber-500'];
+  const categoryStats: CategoryStats[] = categories.map((cat, idx) => {
+    const count = initialProjects.filter((p) => p.category === cat).length;
+    const percentage = totalProjectsCount > 0 ? Math.round((count / totalProjectsCount) * 100) : 0;
+    return {
+      name: cat,
+      count,
+      percentage,
+      color: colors[idx],
     };
+  });
 
-    loadOverviewData();
-  }, []);
+  // Recent activity
+  const recentMsgs: RecentActivity[] = initialMessages.slice(0, 3).map((m: any) => ({
+    id: `msg-${m.id}`,
+    type: 'message' as const,
+    title: `New message from ${m.name}`,
+    description: m.message,
+    date: typeof m.createdAt === 'string' ? m.createdAt : m.createdAt.toISOString(),
+  }));
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-        <Loader2 className="h-8 w-8 animate-spin mb-2" />
-        <p>Loading overview stats...</p>
-      </div>
-    );
-  }
+  const recentCourses: RecentActivity[] = initialCourses.slice(0, 2).map((c: any) => ({
+    id: `course-${c.id}`,
+    type: 'course' as const,
+    title: `New course created: "${c.title}"`,
+    description: `Capacity: ${c.capacity}`,
+    date: typeof c.createdAt === 'string' ? c.createdAt : c.createdAt.toISOString(),
+  }));
+
+  const recentActivities = [...recentMsgs, ...recentCourses].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold">Overview</h1>
+        <h1 className="text-3xl font-semibold font-serif">Overview</h1>
         <p className="text-muted-foreground mt-1">
-          Welcome back, Dr. Allam. Here's what's happening with your portfolio.
+          Welcome back, Dr. Yassmin. Here's what's happening with your portfolio.
         </p>
       </div>
 
@@ -150,7 +118,7 @@ export function OverviewPage() {
         <StatCard
           title="Total Views"
           value={stats.totalViews.toLocaleString()}
-          description="Baseline portfolio views"
+          description="Actual site page views"
           icon={Eye}
         />
       </div>
@@ -159,7 +127,7 @@ export function OverviewPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle className="font-serif">Recent Activity</CardTitle>
             <CardDescription>Latest updates from your dashboard</CardDescription>
           </CardHeader>
           <CardContent>
@@ -206,7 +174,7 @@ export function OverviewPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Quick Stats</CardTitle>
+            <CardTitle className="font-serif">Quick Stats</CardTitle>
             <CardDescription>Project distribution by category</CardDescription>
           </CardHeader>
           <CardContent>

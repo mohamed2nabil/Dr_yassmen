@@ -1,7 +1,6 @@
 "use client";
 
-'use client';
-
+import { useEffect, useState } from 'react';
 import { Bell, Search, User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +15,22 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 export function DashboardHeader({ onMenuClick }: { onMenuClick: () => void }) {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    async function loadUnreadCount() {
+      try {
+        const response = await fetch('/api/inbox/unread-count');
+        const data = await response.json();
+        setUnreadCount(data.unreadCount ?? 0);
+      } catch (error) {
+        console.error('Failed to load unread count:', error);
+      }
+    }
+
+    loadUnreadCount();
+  }, []);
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
       <Button variant="ghost" size="icon" className="lg:hidden shrink-0" onClick={onMenuClick}>
@@ -36,7 +51,7 @@ export function DashboardHeader({ onMenuClick }: { onMenuClick: () => void }) {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-            8
+            {unreadCount}
           </Badge>
           <span className="sr-only">Notifications</span>
         </Button>

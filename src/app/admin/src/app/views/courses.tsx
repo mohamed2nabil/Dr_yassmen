@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MoreHorizontal, Pencil, Trash2, Eye, Search, Users, EyeOff, Plus, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { MoreHorizontal, Trash2, Search, Users, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -34,29 +34,36 @@ import { Course, CourseStatus } from '@/types/dashboard';
 import { getCourses, deleteCourse, toggleCourseVisibility } from '@/app/actions/courseActions';
 import { toast } from 'sonner';
 
-export function CoursesPage() {
+interface CoursesPageProps {
+  initialCourses?: any[];
+}
+
+export function CoursesPage({ initialCourses = [] }: CoursesPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<CourseStatus | 'All'>('All');
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const mapCourses = (list: any[]): Course[] => {
+    return list.map((c) => ({
+      id: String(c.id),
+      title: c.title,
+      description: c.description,
+      status: c.status as CourseStatus,
+      date: typeof c.date === 'string' ? c.date.split('T')[0] : c.date.toISOString().split('T')[0],
+      duration: c.duration,
+      capacity: c.capacity,
+      enrolled: c.enrolled,
+      image: c.imageUrl,
+    }));
+  };
+
+  const [courses, setCourses] = useState<Course[]>(() => mapCourses(initialCourses));
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchAllCourses = async () => {
     setIsLoading(true);
     try {
       const data = await getCourses();
-      setCourses(
-        data.map((c) => ({
-          id: String(c.id),
-          title: c.title,
-          description: c.description,
-          status: c.status as CourseStatus,
-          date: c.date.toISOString().split('T')[0],
-          duration: c.duration,
-          capacity: c.capacity,
-          enrolled: c.enrolled,
-          image: c.imageUrl,
-        }))
-      );
+      setCourses(mapCourses(data));
     } catch (e) {
       toast.error('Failed to load courses');
     } finally {
@@ -64,13 +71,13 @@ export function CoursesPage() {
     }
   };
 
-  useEffect(() => {
-    fetchAllCourses();
-  }, []);
-
   const handleDelete = async (id: string) => {
     try {
-      await deleteCourse(Number(id));
+      const result = await deleteCourse(Number(id));
+      if ('error' in result) {
+        toast.error(result.error);
+        return;
+      }
       setCourses((prev) => prev.filter((c) => c.id !== id));
       toast.success('Course deleted successfully');
     } catch (error) {
@@ -80,7 +87,13 @@ export function CoursesPage() {
 
   const handleToggleHide = async (id: string) => {
     try {
-      const updated = await toggleCourseVisibility(Number(id));
+      const result = await toggleCourseVisibility(Number(id));
+      if ('error' in result) {
+        toast.error(result.error);
+        return;
+      }
+      
+      const updated = result.data;
       toast.success(`Course is now ${updated.isVisible ? 'visible' : 'hidden'} on the website.`);
     } catch (error) {
       toast.error('Failed to toggle course visibility');
@@ -99,7 +112,7 @@ export function CoursesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold">Courses</h1>
+          <h1 className="text-3xl font-semibold font-serif">Courses</h1>
           <p className="text-muted-foreground mt-1">
             Manage your course offerings and track enrollments
           </p>

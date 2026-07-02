@@ -1,7 +1,7 @@
-"use client";
-
 import { CoursesPage } from '@/views/courses';
+import { getCourses } from '@/app/actions/courseActions';
 
-export default function Page() {
-  return <CoursesPage />;
+export default async function Page() {
+  const courses = await getCourses();
+  return <CoursesPage initialCourses={courses} />;
 }

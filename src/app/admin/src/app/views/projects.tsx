@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MoreHorizontal, Pencil, Trash2, Eye, Search, EyeOff, Plus, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { MoreHorizontal, Eye, Search, EyeOff, Plus, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -33,29 +33,36 @@ import { Project, ProjectCategory } from '@/types/dashboard';
 import { getProjects, deleteProject, toggleProjectVisibility } from '@/app/actions/projectActions';
 import { toast } from 'sonner';
 
-export function ProjectsPage() {
+interface ProjectsPageProps {
+  initialProjects?: any[];
+}
+
+export function ProjectsPage({ initialProjects = [] }: ProjectsPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<ProjectCategory | 'All'>('All');
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  
+  const mapProjects = (list: any[]): Project[] => {
+    return list.map((p) => ({
+      id: String(p.id),
+      title: p.title,
+      description: p.description,
+      category: p.category as ProjectCategory,
+      thumbnail: p.mainImage,
+      date: p.dateLocation,
+      beforeImage: p.beforeImage || undefined,
+      afterImage: p.afterImage || undefined,
+      isVisible: p.isVisible,
+    }));
+  };
+
+  const [projects, setProjects] = useState<Project[]>(() => mapProjects(initialProjects));
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchAllProjects = async () => {
     setIsLoading(true);
     try {
       const data = await getProjects();
-      setProjects(
-        data.map((p) => ({
-          id: String(p.id),
-          title: p.title,
-          description: p.description,
-          category: p.category as ProjectCategory,
-          thumbnail: p.mainImage,
-          date: p.dateLocation,
-          beforeImage: p.beforeImage || undefined,
-          afterImage: p.afterImage || undefined,
-          isVisible: p.isVisible,
-        }))
-      );
+      setProjects(mapProjects(data));
     } catch (e) {
       toast.error('Failed to load projects');
     } finally {
@@ -63,13 +70,13 @@ export function ProjectsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchAllProjects();
-  }, []);
-
   const handleDelete = async (id: string) => {
     try {
-      await deleteProject(Number(id));
+      const result = await deleteProject(Number(id));
+      if ('error' in result) {
+        toast.error(result.error);
+        return;
+      }
       setProjects((prev) => prev.filter((p) => p.id !== id));
       toast.success('Project deleted successfully');
     } catch (error) {
@@ -79,7 +86,13 @@ export function ProjectsPage() {
 
   const handleToggleHide = async (id: string) => {
     try {
-      const updated = await toggleProjectVisibility(Number(id));
+      const result = await toggleProjectVisibility(Number(id));
+      if ('error' in result) {
+        toast.error(result.error);
+        return;
+      }
+      
+      const updated = result.data;
       setProjects((prev) =>
         prev.map((p) => (p.id === id ? { ...p, isVisible: updated.isVisible } : p))
       );
@@ -115,7 +128,7 @@ export function ProjectsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold">Projects</h1>
+          <h1 className="text-3xl font-semibold font-serif">Projects</h1>
           <p className="text-muted-foreground mt-1">
             Manage your portfolio projects across all specializations
           </p>

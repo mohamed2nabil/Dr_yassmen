@@ -10,6 +10,11 @@ import { StatsSection } from './components/StatsSection';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { getProjects } from '@/app/actions/projectActions';
+import { incrementViews } from '@/app/actions/analyticsActions';
+import { getProfile } from '@/app/actions/profileActions';
+import { getCredentials } from '@/app/actions/credentialActions';
+import { getWorkshops } from '@/app/actions/workshopActions';
+import { getTherapyStories } from '@/app/actions/therapyStoryActions';
 
 const fallbackVisualArtProjects = [
   {
@@ -128,6 +133,30 @@ export default function Page() {
   const [visualArtProjects, setVisualArtProjects] = useState(fallbackVisualArtProjects);
   const [interiorProjects, setInteriorProjects] = useState(fallbackInteriorProjects);
   const [educationProjects, setEducationProjects] = useState(fallbackEducationProjects);
+  const [profile, setProfile] = useState<any>(null);
+  const [credentials, setCredentials] = useState<any[]>([]);
+  const [workshops, setWorkshops] = useState<any[]>([]);
+  const [therapyStories, setTherapyStories] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadDbData() {
+      try {
+        const [profData, credsData, wrkData, strData] = await Promise.all([
+          getProfile(),
+          getCredentials(),
+          getWorkshops(),
+          getTherapyStories(),
+        ]);
+        setProfile(profData);
+        setCredentials(credsData);
+        setWorkshops(wrkData.filter(w => w.isVisible));
+        setTherapyStories(strData.filter(s => s.isVisible));
+      } catch (error) {
+        console.error('Failed to load DB settings/profile data:', error);
+      }
+    }
+    loadDbData();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -145,6 +174,10 @@ export default function Page() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    incrementViews();
   }, []);
 
   useEffect(() => {
@@ -191,8 +224,8 @@ export default function Page() {
       }}
     >
       <Navigation activeSection={activeSection} />
-      <HeroSection />
-      <PhilosophySection />
+      <HeroSection profile={profile} />
+      <PhilosophySection profile={profile} credentials={credentials} />
       <StatsSection />
       <ChapterSection
         id="visual-art"
@@ -228,7 +261,7 @@ export default function Page() {
         bg="var(--chapter-education-bg)"
         projects={educationProjects}
       />
-      <ArtTherapySection />
+      <ArtTherapySection profile={profile} workshops={workshops} therapyStories={therapyStories} />
       <TestimonialsSection />
       <ContactSection />
     </div>

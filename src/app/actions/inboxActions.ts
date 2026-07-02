@@ -82,3 +82,52 @@ export async function deleteMessage(id: number) {
     return { success: false as const, error: error.message || 'Failed to delete message' };
   }
 }
+
+function parseMessageRole(interests?: string | null) {
+  if (!interests) {
+    return 'Client';
+  }
+
+  try {
+    const parsed = interests.startsWith('[') ? JSON.parse(interests) : interests.split(',');
+    const firstRole = Array.isArray(parsed) ? String(parsed[0]) : String(parsed);
+    return firstRole.trim() || 'Client';
+  } catch (error) {
+    return interests.split(',')[0]?.trim() || 'Client';
+  }
+}
+
+export async function createTestimonialFromMessage(messageId: number) {
+  try {
+    const message = await db.message.findUnique({
+      where: { id: messageId },
+    });
+
+    if (!message) {
+      return { success: false as const, error: 'Message not found' };
+    }
+
+    const testimonial = await db.testimonial.create({
+      data: {
+        clientName: message.name,
+        content: message.message,
+        role: parseMessageRole(message.interests),
+      },
+    });
+
+    await db.message.update({
+      where: { id: messageId },
+      data: { isRead: true },
+    });
+
+    revalidatePath('/admin/inbox');
+    revalidatePath('/admin/vouts');
+    revalidatePath('/');
+
+    const result = { success: true as const, data: testimonial };
+    return Object.assign(result, testimonial);
+  } catch (error: any) {
+    console.error('Error converting message to testimonial:', error);
+    return { success: false as const, error: error.message || 'Failed to add message to vouts' };
+  }
+}

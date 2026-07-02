@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Save, Plus, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,9 +15,13 @@ type StatItem = {
   label: string;
 };
 
-export function StatsPage() {
-  const [stats, setStats] = useState<StatItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface StatsPageProps {
+  initialStats?: StatItem[];
+}
+
+export function StatsPage({ initialStats = [] }: StatsPageProps) {
+  const [stats, setStats] = useState<StatItem[]>(initialStats);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState<Record<number, boolean>>({});
   const [isAdding, setIsAdding] = useState(false);
 
@@ -37,14 +41,14 @@ export function StatsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
   const handleUpdate = async (id: number, value: string, label: string) => {
     setIsSaving((prev) => ({ ...prev, [id]: true }));
     try {
-      await updateStat(id, { value, label });
+      const result = await updateStat(id, { value, label });
+      if ('error' in result) {
+        toast.error(result.error);
+        return;
+      }
       toast.success('Stat updated successfully');
     } catch (error) {
       toast.error('Failed to update stat');
@@ -61,7 +65,13 @@ export function StatsPage() {
     }
     setIsAdding(true);
     try {
-      const created = await createStat({ value: newValue, label: newLabel });
+      const result = await createStat({ value: newValue, label: newLabel });
+      if ('error' in result) {
+        toast.error(result.error);
+        return;
+      }
+      
+      const created = result.data;
       setStats((prev) => [...prev, created]);
       setNewValue('');
       setNewLabel('');
@@ -75,7 +85,11 @@ export function StatsPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await deleteStat(id);
+      const result = await deleteStat(id);
+      if ('error' in result) {
+        toast.error(result.error);
+        return;
+      }
       setStats((prev) => prev.filter((item) => item.id !== id));
       toast.success('Stat deleted successfully');
     } catch (error) {
@@ -86,7 +100,7 @@ export function StatsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold">Stats Management</h1>
+        <h1 className="text-3xl font-semibold font-serif">Stats Management</h1>
         <p className="text-muted-foreground mt-1">
           Manage numeric values and labels for the Impact & Reach section on the homepage.
         </p>
@@ -103,7 +117,7 @@ export function StatsPage() {
           <div className="md:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Impact & Reach Metrics</CardTitle>
+                <CardTitle className="font-serif">Impact & Reach Metrics</CardTitle>
                 <CardDescription>
                   Modify the display values (e.g., "15+") and labels (e.g., "Years of Practice")
                 </CardDescription>
@@ -173,7 +187,7 @@ export function StatsPage() {
           <div className="md:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle>Add New Metric</CardTitle>
+                <CardTitle className="font-serif">Add New Metric</CardTitle>
                 <CardDescription>Create a new impact metric for the landing page</CardDescription>
               </CardHeader>
               <CardContent>

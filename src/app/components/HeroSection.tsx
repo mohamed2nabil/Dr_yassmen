@@ -27,12 +27,17 @@ const chapters = [
   },
 ]
 
-export function HeroSection() {
+export function HeroSection({ profile }: { profile?: any }) {
   const scrollToPhilosophy = () => {
     document
       .getElementById('philosophy')
       ?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const name = profile?.name || 'Yasmen Allam';
+  const spaceIndex = name.indexOf(' ');
+  const firstName = spaceIndex > -1 ? name.substring(0, spaceIndex) : name;
+  const lastName = spaceIndex > -1 ? name.substring(spaceIndex + 1) : '';
 
   return (
     <section
@@ -80,11 +85,15 @@ export function HeroSection() {
                 letterSpacing: '-0.02em',
               }}
             >
-              Yasmen
-              <br />
-              <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>
-                Allam
-              </em>
+              {firstName}
+              {lastName && (
+                <>
+                  <br />
+                  <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>
+                    {lastName}
+                  </em>
+                </>
+              )}
             </h1>
 
             {/* Professions */}
@@ -98,81 +107,98 @@ export function HeroSection() {
                 letterSpacing: '0.02em',
               }}
             >
-              Visual Artist | Interior Designer | Art Educator | Art Therapist
+              {profile?.professions || 'Visual Artist | Interior Designer | Art Educator | Art Therapist'}
             </div>
 
             {/* Tagline */}
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1.05rem',
-                lineHeight: 1.75,
-                color: 'var(--muted-foreground)',
-                maxWidth: '600px',
-              }}
-            >
-              Welcome to my portfolio.
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1rem',
-                lineHeight: 1.75,
-                color: 'var(--muted-foreground)',
-                maxWidth: '600px',
-                marginTop: '1rem',
-              }}
-            >
-              I am a passionate Visual Artist, Interior Designer, Art Educator, and Art Therapist dedicated to inspiring creativity, fostering self-expression, and creating meaningful artistic experiences.
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1rem',
-                lineHeight: 1.75,
-                color: 'var(--muted-foreground)',
-                maxWidth: '600px',
-                marginTop: '1rem',
-              }}
-            >
-              With a multidisciplinary background in Fine Arts, Interior Design, Education, and Art Therapy, I combine artistic vision with educational expertise to design engaging learning environments, innovative creative projects, and therapeutic art experiences that support personal growth and emotional well-being.
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1rem',
-                lineHeight: 1.75,
-                color: 'var(--muted-foreground)',
-                maxWidth: '600px',
-                marginTop: '1rem',
-              }}
-            >
-              Throughout my professional journey, I have worked on a diverse range of projects, including visual arts, interior design, educational programs, art workshops, community initiatives, and art therapy activities for children, adolescents, and adults. My work reflects a commitment to creativity, innovation, cultural appreciation, and lifelong learning.
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1rem',
-                lineHeight: 1.75,
-                color: 'var(--muted-foreground)',
-                maxWidth: '600px',
-                marginTop: '1rem',
-              }}
-            >
-              This portfolio presents a selection of my professional achievements, creative projects, artistic works, educational experiences, and therapeutic practices. Each project represents my belief that art has the power to connect people, inspire change, and transform ideas into meaningful experiences.
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1rem',
-                lineHeight: 1.75,
-                color: 'var(--muted-foreground)',
-                maxWidth: '600px',
-                marginTop: '1rem',
-              }}
-            >
-              Thank you for taking the time to explore my work. I hope this portfolio reflects my passion for creativity, education, and the transformative power of art.
-            </p>
+            {profile?.bio ? (
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '1.05rem',
+                  lineHeight: 1.75,
+                  color: 'var(--muted-foreground)',
+                  maxWidth: '600px',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {profile.bio}
+              </p>
+            ) : (
+              <>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1.05rem',
+                    lineHeight: 1.75,
+                    color: 'var(--muted-foreground)',
+                    maxWidth: '600px',
+                  }}
+                >
+                  Welcome to my portfolio.
+                </p>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1rem',
+                    lineHeight: 1.75,
+                    color: 'var(--muted-foreground)',
+                    maxWidth: '600px',
+                    marginTop: '1rem',
+                  }}
+                >
+                  I am a passionate Visual Artist, Interior Designer, Art Educator, and Art Therapist dedicated to inspiring creativity, fostering self-expression, and creating meaningful artistic experiences.
+                </p>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1rem',
+                    lineHeight: 1.75,
+                    color: 'var(--muted-foreground)',
+                    maxWidth: '600px',
+                    marginTop: '1rem',
+                  }}
+                >
+                  With a multidisciplinary background in Fine Arts, Interior Design, Education, and Art Therapy, I combine artistic vision with educational expertise to design engaging learning environments, innovative creative projects, and therapeutic art experiences that support personal growth and emotional well-being.
+                </p>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1rem',
+                    lineHeight: 1.75,
+                    color: 'var(--muted-foreground)',
+                    maxWidth: '600px',
+                    marginTop: '1rem',
+                  }}
+                >
+                  Throughout my professional journey, I have worked on a diverse range of projects, including visual arts, interior design, educational programs, art workshops, community initiatives, and art therapy activities for children, adolescents, and adults. My work reflects a commitment to creativity, innovation, cultural appreciation, and lifelong learning.
+                </p>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1rem',
+                    lineHeight: 1.75,
+                    color: 'var(--muted-foreground)',
+                    maxWidth: '600px',
+                    marginTop: '1rem',
+                  }}
+                >
+                  This portfolio presents a selection of my professional achievements, creative projects, artistic works, educational experiences, and therapeutic practices. Each project represents my belief that art has the power to connect people, inspire change, and transform ideas into meaningful experiences.
+                </p>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1rem',
+                    lineHeight: 1.75,
+                    color: 'var(--muted-foreground)',
+                    maxWidth: '600px',
+                    marginTop: '1rem',
+                  }}
+                >
+                  Thank you for taking the time to explore my work. I hope this portfolio reflects my passion for creativity, education, and the transformative power of art.
+                </p>
+              </>
+            )}
 
             {/* Quote */}
             <blockquote
@@ -188,7 +214,7 @@ export function HeroSection() {
                 paddingLeft: '1.5rem',
               }}
             >
-              "Creativity is intelligence having fun."
+              "{profile?.quote || "Creativity is intelligence having fun."}"
               <div
                 style={{
                   fontFamily: 'var(--font-body)',
@@ -198,7 +224,7 @@ export function HeroSection() {
                   color: 'var(--muted-foreground)',
                 }}
               >
-                — Albert Einstein
+                — {profile?.quoteAuthor || "Albert Einstein"}
               </div>
             </blockquote>
 
@@ -280,7 +306,7 @@ export function HeroSection() {
               style={{ background: 'var(--chapter-art-bg)' }}
             >
               <img
-                src="https://images.unsplash.com/photo-1740710543611-80b658171bc3?w=600&h=800&fit=crop&auto=format"
+                src={profile?.heroImage1 || "https://images.unsplash.com/photo-1740710543611-80b658171bc3?w=600&h=800&fit=crop&auto=format"}
                 alt="Art studio with easel and paintbrushes"
                 className="w-full h-full object-cover"
               />
@@ -291,7 +317,7 @@ export function HeroSection() {
               style={{ background: 'var(--chapter-interior-bg)' }}
             >
               <img
-                src="https://images.unsplash.com/photo-1646987916641-1f3c8992daa2?w=400&h=300&fit=crop&auto=format"
+                src={profile?.heroImage2 || "https://images.unsplash.com/photo-1646987916641-1f3c8992daa2?w=400&h=300&fit=crop&auto=format"}
                 alt="Luxury interior design living room"
                 className="w-full h-full object-cover"
               />
@@ -302,13 +328,11 @@ export function HeroSection() {
               style={{ background: 'var(--chapter-therapy-bg)' }}
             >
               <img
-                src="https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=400&h=300&fit=crop&auto=format"
+                src={profile?.heroImage3 || "https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=400&h=300&fit=crop&auto=format"}
                 alt="Abstract colorful painting"
                 className="w-full h-full object-cover"
               />
             </div>
-
-
           </div>
         </div>
       </div>

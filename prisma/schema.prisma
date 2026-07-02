@@ -75,8 +75,64 @@ model Message {
 }
 
 model Profile {
-  id           Int    @id @default(autoincrement())
-  name         String
-  bio          String @db.Text
-  contactEmail String
+  id            Int      @id @default(autoincrement())
+  name          String
+  bio           String   @db.Text
+  contactEmail  String
+  professions   String   @default("Visual Artist | Interior Designer | Art Educator | Art Therapist")
+  quote         String   @default("Creativity is intelligence having fun.")
+  quoteAuthor   String   @default("Albert Einstein")
+  heroImage1    String   @default("https://images.unsplash.com/photo-1740710543611-80b658171bc3?w=600&h=800&fit=crop&auto=format")
+  heroImage2    String   @default("https://images.unsplash.com/photo-1646987916641-1f3c8992daa2?w=400&h=300&fit=crop&auto=format")
+  heroImage3    String   @default("https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=400&h=300&fit=crop&auto=format")
+  aboutQuote    String   @default("Welcome to my creative world.")
+  aboutText1    String   @db.Text @default("")
+  aboutText2    String   @db.Text @default("")
+  aboutText3    String   @db.Text @default("")
+  aboutText4    String   @db.Text @default("")
+  aboutImage1   String   @default("https://images.unsplash.com/photo-1560831340-b9679dc9e9f0?w=500&h=400&fit=crop&auto=format")
+  aboutImage2   String   @default("https://images.unsplash.com/photo-1501366062246-723b4d3e4eb6?w=500&h=400&fit=crop&auto=format")
+  therapyIntro  String   @db.Text @default("")
+  instagramUrl  String?
+  facebookUrl   String?
+  linkedinUrl   String?
+}
+
+model Credential {
+  id          Int      @id @default(autoincrement())
+  degree      String
+  field       String
+  institution String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Workshop {
+  id          Int      @id @default(autoincrement())
+  title       String
+  arabicTitle String
+  description String   @db.Text
+  sessions    String
+  format      String
+  iconName    String
+  isVisible   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model TherapyStory {
+  id          Int      @id @default(autoincrement())
+  initials    String
+  age         String
+  context     String
+  quote       String   @db.Text
+  color       String
+  isVisible   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Analytics {
+  id    Int @id @default(autoincrement())
+  views Int @default(0)
 }

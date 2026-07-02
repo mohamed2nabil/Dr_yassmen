@@ -39,7 +39,7 @@ import { MediaItem } from '@/types/dashboard';
 import { toast } from 'sonner';
 
 // Extended MediaItem type with category
-type ExtendedMediaItem = MediaItem & { category: string };
+type ExtendedMediaItem = MediaItem & { category: string; hidden?: boolean };
 
 const mockExtendedMedia: ExtendedMediaItem[] = [
   {
@@ -111,14 +111,23 @@ const mockExtendedMedia: ExtendedMediaItem[] = [
 export function MediaPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
-  const [media, setMedia] = useState<ExtendedMediaItem[]>(mockExtendedMedia);
+  const [media, setMedia] = useState<ExtendedMediaItem[]>(
+    mockExtendedMedia.map((item) => ({ ...item, hidden: false }))
+  );
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingMedia, setEditingMedia] = useState<ExtendedMediaItem | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editCategory, setEditCategory] = useState('Hero Section');
+  const [editFile, setEditFile] = useState<File | null>(null);
 
-  const filteredMedia = media.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredMedia = media
+    .filter((item) => !item.hidden)
+    .filter((item) => {
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
 
   const handleDelete = (id: string) => {
     setMedia((prev) => prev.filter((item) => item.id !== id));
@@ -142,6 +151,47 @@ export function MediaPage() {
   };
 
   const categories = ['All', 'Hero Section', 'Visual Art', 'Interior Design', 'Courses'];
+
+  const openEditDialog = (item: ExtendedMediaItem) => {
+    setEditingMedia(item);
+    setEditName(item.name);
+    setEditCategory(item.category);
+    setEditFile(null);
+    setEditDialogOpen(true);
+  };
+
+  const handleToggleHide = (id: string) => {
+    setMedia((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, hidden: true } : item))
+    );
+    toast.success('Media file hidden successfully');
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!editingMedia) {
+      return;
+    }
+
+    setMedia((prev) =>
+      prev.map((item) =>
+        item.id === editingMedia.id
+          ? {
+              ...item,
+              name: editName,
+              category: editCategory,
+              url: editFile ? URL.createObjectURL(editFile) : item.url,
+            }
+          : item
+      )
+    );
+
+    toast.success('Media details updated successfully');
+    setEditDialogOpen(false);
+    setEditingMedia(null);
+    setEditFile(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -295,11 +345,11 @@ export function MediaPage() {
                             <Eye className="mr-2 h-4 w-4" />
                             View Full Size
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEditDialog(item)}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleToggleHide(item.id)}>
                             <EyeOff className="mr-2 h-4 w-4" />
                             Hide from Library
                           </DropdownMenuItem>
@@ -338,6 +388,70 @@ export function MediaPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={editDialogOpen} onOpenChange={(open) => {
+        setEditDialogOpen(open);
+        if (!open) {
+          setEditingMedia(null);
+          setEditFile(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Media Details</DialogTitle>
+            <DialogDescription>
+              Change the file name, category, or upload a new file to replace the current media.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">File Name</Label>
+              <Input
+                id="edit-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-category">Category</Label>
+              <Select value={editCategory} onValueChange={setEditCategory}>
+                <SelectTrigger id="edit-category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.filter((cat) => cat !== 'All').map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-file">Change File</Label>
+              <Input
+                id="edit-file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.currentTarget.files?.[0] ?? null;
+                  setEditFile(file);
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Choose a new file to replace the current media. This will update the preview.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Change</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Pagination */}
       {filteredMedia.length > 0 && (

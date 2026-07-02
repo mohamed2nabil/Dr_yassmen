@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Heart, Users, Sparkles, Shield } from 'lucide-react'
 
-const workshops = [
+const fallbackWorkshops = [
   {
     title: 'Grief & Loss Processing',
     arabic: 'تجاوز الحزن والفقدان',
@@ -42,7 +42,7 @@ const workshops = [
   },
 ]
 
-const stories = [
+const fallbackStories = [
   {
     initials: 'S.M.',
     age: '34',
@@ -69,9 +69,43 @@ const stories = [
   },
 ]
 
-export function ArtTherapySection() {
+const iconMap: { [key: string]: any } = {
+  Heart,
+  Users,
+  Sparkles,
+  Shield,
+};
+
+interface ArtTherapySectionProps {
+  profile?: any;
+  workshops?: any[];
+  therapyStories?: any[];
+}
+
+export function ArtTherapySection({ profile, workshops, therapyStories }: ArtTherapySectionProps) {
   const [activeWorkshop, setActiveWorkshop] = useState(0)
   const [activeStory, setActiveStory] = useState(0)
+
+  const displayWorkshops = workshops && workshops.length > 0
+    ? workshops.map(w => ({
+        title: w.title,
+        arabic: w.arabicTitle,
+        description: w.description,
+        sessions: w.sessions,
+        format: w.format,
+        icon: iconMap[w.iconName] || Heart,
+      }))
+    : fallbackWorkshops;
+
+  const displayStories = therapyStories && therapyStories.length > 0
+    ? therapyStories.map(s => ({
+        initials: s.initials,
+        age: s.age,
+        context: s.context,
+        quote: s.quote,
+        color: s.color,
+      }))
+    : fallbackStories;
 
   return (
     <section
@@ -150,36 +184,52 @@ export function ArtTherapySection() {
         {/* Intro */}
         <div className="grid lg:grid-cols-12 gap-12 mb-20">
           <div className="lg:col-span-5">
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1rem',
-                lineHeight: 1.85,
-                color: 'var(--muted-foreground)',
-              }}
-            >
-              With over 12 years of clinical practice, I offer art therapy as a
-              BAAT-accredited practitioner. My approach is trauma-informed,
-              person-centered, and grounded in the belief that creativity is an
-              innate human capacity for healing — not a talent that needs to be
-              earned.
-            </p>
-            <p
-              className="mt-5"
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '1rem',
-                lineHeight: 1.85,
-                color: 'var(--muted-foreground)',
-              }}
-            >
-              Sessions are conducted in Arabic and English. I work with adults,
-              adolescents, and children in both individual and group settings.
-            </p>
+            {profile?.therapyIntro ? (
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '1rem',
+                  lineHeight: 1.85,
+                  color: 'var(--muted-foreground)',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {profile.therapyIntro}
+              </p>
+            ) : (
+              <>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1rem',
+                    lineHeight: 1.85,
+                    color: 'var(--muted-foreground)',
+                  }}
+                >
+                  With over 12 years of clinical practice, I offer art therapy as a
+                  BAAT-accredited practitioner. My approach is trauma-informed,
+                  person-centered, and grounded in the belief that creativity is an
+                  innate human capacity for healing — not a talent that needs to be
+                  earned.
+                </p>
+                <p
+                  className="mt-5"
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1rem',
+                    lineHeight: 1.85,
+                    color: 'var(--muted-foreground)',
+                  }}
+                >
+                  Sessions are conducted in Arabic and English. I work with adults,
+                  adolescents, and children in both individual and group settings.
+                </p>
+              </>
+            )}
           </div>
           <div className="lg:col-span-3 lg:col-start-8">
             <img
-              src="https://images.unsplash.com/photo-1560831340-b9679dc9e9f0?w=500&h=400&fit=crop&auto=format"
+              src={profile?.aboutImage1 || "https://images.unsplash.com/photo-1560831340-b9679dc9e9f0?w=500&h=400&fit=crop&auto=format"}
               alt="Art therapy group workshop"
               className="w-full rounded-sm"
               style={{ height: '200px', objectFit: 'cover' }}
@@ -187,7 +237,7 @@ export function ArtTherapySection() {
           </div>
           <div className="lg:col-span-3">
             <img
-              src="https://images.unsplash.com/photo-1501366062246-723b4d3e4eb6?w=500&h=400&fit=crop&auto=format"
+              src={profile?.aboutImage2 || "https://images.unsplash.com/photo-1501366062246-723b4d3e4eb6?w=500&h=400&fit=crop&auto=format"}
               alt="Hands with paint in art therapy session"
               className="w-full rounded-sm"
               style={{ height: '200px', objectFit: 'cover' }}
@@ -214,7 +264,7 @@ export function ArtTherapySection() {
             Workshop Programs
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {workshops.map((w, i) => {
+            {displayWorkshops.map((w, i) => {
               const Icon = w.icon
               return (
                 <button
@@ -353,7 +403,7 @@ export function ArtTherapySection() {
               All testimonials are anonymized to protect client confidentiality
             </div>
             <div className="grid lg:grid-cols-3 gap-1">
-              {stories.map((s, i) => (
+              {displayStories.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveStory(i)}

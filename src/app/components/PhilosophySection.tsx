@@ -1,4 +1,23 @@
-export function PhilosophySection() {
+interface PhilosophySectionProps {
+  profile?: any;
+  credentials?: any[];
+}
+
+export function PhilosophySection({ profile, credentials }: PhilosophySectionProps) {
+  const displayCredentials = credentials && credentials.length > 0 ? credentials.map(c => ({
+    degree: c.degree,
+    field: c.field,
+    inst: c.institution
+  })) : [
+    { degree: 'Ph.D.', field: 'Fine Arts', inst: 'Cairo University' },
+    { degree: 'M.A.', field: 'Interior Design', inst: 'AUC' },
+    {
+      degree: 'Cert.',
+      field: 'Art Therapy',
+      inst: 'BAAT Accredited',
+    },
+  ];
+
   return (
     <section
       id="philosophy"
@@ -47,7 +66,7 @@ export function PhilosophySection() {
                 fontStyle: 'italic',
               }}
             >
-              Welcome to my creative world.
+              {profile?.aboutQuote || "Welcome to my creative world."}
             </blockquote>
 
             <p
@@ -59,7 +78,7 @@ export function PhilosophySection() {
                 color: 'rgba(249,246,241,0.65)',
               }}
             >
-              I am Yasmen Allam, a multidisciplinary creative professional with expertise in Visual Arts, Interior Design, Art Education, and Art Therapy. My work is driven by a passion for transforming ideas into meaningful artistic experiences that inspire creativity, personal growth, and emotional well-being.
+              {profile?.aboutText1 || "I am Yasmen Allam, a multidisciplinary creative professional with expertise in Visual Arts, Interior Design, Art Education, and Art Therapy. My work is driven by a passion for transforming ideas into meaningful artistic experiences that inspire creativity, personal growth, and emotional well-being."}
             </p>
 
             <p
@@ -71,7 +90,7 @@ export function PhilosophySection() {
                 color: 'rgba(249,246,241,0.65)',
               }}
             >
-              With a background in Applied Arts and Education, I have developed a diverse portfolio that combines artistic expression, innovative design, and therapeutic practices. Throughout my journey, I have worked with children, adolescents, and adults, creating engaging learning environments, artistic projects, and art-based interventions that foster creativity and self-expression.
+              {profile?.aboutText2 || "With a background in Applied Arts and Education, I have developed a diverse portfolio that combines artistic expression, innovative design, and therapeutic practices. Throughout my journey, I have worked with children, adolescents, and adults, creating engaging learning environments, artistic projects, and art-based interventions that foster creativity and self-expression."}
             </p>
 
             <p
@@ -83,7 +102,7 @@ export function PhilosophySection() {
                 color: 'rgba(249,246,241,0.65)',
               }}
             >
-              My philosophy is rooted in the belief that art has the power to connect, heal, educate, and inspire. Whether through a painting, a designed space, an educational program, or an art therapy session, my goal is to create experiences that leave a lasting impact.
+              {profile?.aboutText3 || "My philosophy is rooted in the belief that art has the power to connect, heal, educate, and inspire. Whether through a painting, a designed space, an educational program, or an art therapy session, my goal is to create experiences that leave a lasting impact."}
             </p>
 
             <p
@@ -95,7 +114,7 @@ export function PhilosophySection() {
                 color: 'rgba(249,246,241,0.65)',
               }}
             >
-              This portfolio showcases selected works, projects, exhibitions, educational initiatives, and creative achievements that reflect my artistic vision and professional journey.
+              {profile?.aboutText4 || "This portfolio showcases selected works, projects, exhibitions, educational initiatives, and creative achievements that reflect my artistic vision and professional journey."}
             </p>
 
             {/* Signature */}
@@ -112,7 +131,7 @@ export function PhilosophySection() {
                   fontStyle: 'italic',
                 }}
               >
-                Yasmen Allam
+                {profile?.name || "Yasmen Allam"}
               </span>
             </div>
           </div>
@@ -131,17 +150,9 @@ export function PhilosophySection() {
             >
               Credentials
             </div>
-            {[
-              { degree: 'Ph.D.', field: 'Fine Arts', inst: 'Cairo University' },
-              { degree: 'M.A.', field: 'Interior Design', inst: 'AUC' },
-              {
-                degree: 'Cert.',
-                field: 'Art Therapy',
-                inst: 'BAAT Accredited',
-              },
-            ].map((c) => (
+            {displayCredentials.map((c, idx) => (
               <div
-                key={c.degree}
+                key={idx}
                 className="mb-5 pb-5"
                 style={{ borderBottom: '1px solid rgba(249,246,241,0.08)' }}
               >
